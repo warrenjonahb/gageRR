@@ -4,7 +4,7 @@ xbar_repeat = function(data, part, operator, meas){
     group_by(part, operator) %>%
     summarize(rep = n())
 
-  if (nrow(reps > 1)) {
+  if (length(unique(reps$rep)) != 1) {
    stop("Each part must have an equal number of replicates")
   }
 
@@ -30,15 +30,23 @@ xbar_repeat = function(data, part, operator, meas){
     group_by(part, operator) %>%
     summarize(repeatbility = range(meas)/(a*k)*1/d)
 
-  return(xbar_rep$repeatbility)
+  repeatability = sum(xbar_rep$repeatbility)
+
+  return(repeatability)
 
 }
 
-xbar_repeat = function(data, part, operator, meas){
-  r = data %>%
+xbar_reproduce = function(data, part, operator, meas){
+  reps  = data %>%
     select(part, operator) %>%
     group_by(part, operator) %>%
     summarize(rep = n())
+
+  if (length(unique(reps$rep)) != 1) {
+    stop("Each part must have an equal number of replicates")
+  }
+
+  r = unique(reps$rep)
 
   a = data %>%
     select(part) %>%
@@ -59,11 +67,11 @@ xbar_repeat = function(data, part, operator, meas){
     group_by(operator) %>%
     summarize(op_range = range(meas))
 
-  x_diff = max(xbar_i$meas) - min(xbar_i$meas)
+  x_diff = max(xbar_i$op_range) - min(xbar_i$op_range)
 
-  reproducibility = xbar_repeat(data = data, part = part, operator = operator, meas = meas)
+  repeatability = xbar_repeat(data = data, part = part, operator = operator, meas = meas)
 
-    sqrt((x_diff *1/d)^2 - (reproducibility^2/(a*r)))
+  reproducibility = sqrt((x_diff *1/d)^2 - (repeatabilty^2/(a*r)))
 
 
 }
