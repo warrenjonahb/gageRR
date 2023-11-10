@@ -73,5 +73,21 @@ xbar_reproduce = function(data, part, operator, meas){
 
   reproducibility = sqrt((x_diff *1/d)^2 - (repeatabilty^2/(a*r)))
 
+  return(reproducibility)
+
+}
+
+part_to_part = function(data, part, meas){
+
+  part_meas = data %>%
+    group_by(part) %>%
+    summarize(avg_meas = mean(meas))
+
+  d = d_table %>%
+    filter(g == 1 & m == m)
+
+  r_p = range(part_meas$avg_meas)/d
+
+  return(r_p)
 
 }
