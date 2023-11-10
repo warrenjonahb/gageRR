@@ -1,6 +1,7 @@
 ss_calcs = function(data, part, operator = NULL, meas){
 
-  if (!is.null(operator)){
+  if (is.null(operator)){
+    data$operator = 'A'}
 
     reps = data %>%
       select(part, operator) %>%
@@ -43,23 +44,30 @@ ss_calcs = function(data, part, operator = NULL, meas){
 
     SS_equip_error = sum((SS_equip$op_part_mean - data$meas)^2)
 
-    SS_op_part = SS_total_error - (SS_tech_error + SS_part_error + SS_equip_error)
+    SS_op_part_error = SS_total_error - (SS_tech_error + SS_part_error + SS_equip_error)
 
-    repeatVar =
+    return(list(reps = r, num_parts = p, num_opers = t,
+                SS_oper_error = SS_oper_error,
+                SS_part_error=SS_part_error,
+                SS_equip_error = SS_equip_error,
+                SS_op_part_error = SS_op_part_error,
+                SS_total_error = SS_total_error))
 }
 
-}
-part_to_part = function(data, part, meas){
+var_calcs = function(data, reps, num_parts, num_opers, SS_oper_error, SS_part_error, SS_equip_error, SS_op_part_error)  {
 
-  part_meas = data %>%
-    group_by(part) %>%
-    summarize(avg_meas = mean(meas))
+  MS_oper = SS_oper_error/(num_opers - 1)
+  MS_part = SS_part_error/(num_parts - 1)
+  MS_oper_part = SS_op_part_error/((num_opers - 1)*(num_parts - 1))
+  MS_equip = SS_equip_error / (num_part * num_opers * (reps-1))
 
-  d = d_table %>%
-    filter(g == 1 & m == m)
+  var_repeat = MS_equip
+  var_oper_part = (MS_part - MS_equip)/reps
+  var_part = (MS_part - MS_oper_part)/(reps * num_opers)
+  var_tech = (MS_tech - MS_oper_part)/(reps * num_parts)
 
-  r_p = range(part_meas$avg_meas)/d
-
-  return(r_p)
-
+  if(var_repeat<0){var_repeat=0}
+  if(var_oper_part<0){var_oper_part=0}
+  if(var_part<0){var_part=0}
+  if(var_tech<0){var_tech=0}
 }
