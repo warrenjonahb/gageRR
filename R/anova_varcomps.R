@@ -70,22 +70,33 @@ ss_calcs = function(data, part, operator = NULL, meas){
 }
 
 #Change inputs here to requirements to veed into ss_calcs
-var_calcs = function(data, reps, num_parts, num_opers, SS_oper_error, SS_part_error, SS_equip_error, SS_op_part_error)  {
+var_calcs = function(data, part, operator = NULL, meas)  {
+
+  ss_comp = ss_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+
+  reps = ss_comp$reps
+  num_parts = ss_comp$num_parts
+  num_opers = ss_comp$num_opers
+  SS_oper_error = ss_comp$SS_oper_error
+  SS_part_error = ss_comp$SS_part_error
+  SS_equip_error = ss_comp$SS_equip_error
+  SS_op_part_error = ss_comp$SS_op_part_error
+  SS_total_error = ss_comp$SS_total_error
 
   MS_oper = SS_oper_error/(num_opers - 1)
   MS_part = SS_part_error/(num_parts - 1)
   MS_oper_part = SS_op_part_error/((num_opers - 1)*(num_parts - 1))
-  MS_equip = SS_equip_error / (num_part * num_opers * (reps-1))
+  MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
 
   var_repeat = MS_equip
   var_oper_part = (MS_part - MS_equip)/reps
   var_part = (MS_part - MS_oper_part)/(reps * num_opers)
-  var_tech = (MS_tech - MS_oper_part)/(reps * num_parts)
+  var_tech = (MS_oper - MS_oper_part)/(reps * num_parts)
 
   if(var_repeat<0){var_repeat=0}
   if(var_oper_part<0){var_oper_part=0}
   if(var_part<0){var_part=0}
   if(var_tech<0){var_tech=0}
 
-  return(list(var_repeat = var_repeat, var_oper_part =, var_part=var_part, var_tech=var_tech))
+  return(list(var_repeat = var_repeat, var_oper_part =var_oper_part, var_part=var_part, var_tech=var_tech))
 }
