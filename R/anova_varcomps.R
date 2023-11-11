@@ -1,13 +1,14 @@
 ss_calcs = function(data, part, operator = NULL, meas){
 
-  if (is.null(operator)){
+  if (is.null(data$operator)){
     data$operator = 'A'}
 
     reps = data %>%
-      select(part, operator) %>%
-      group_by(part, operator) %>%
+      select({{part}}, {{operator}}) %>%
+      group_by({{part}}, {{operator}}) %>%
       summarize(rep = n())
 
+  #Small correction here need equal number of reps across each operator/part combo
     if (length(unique(reps$rep)) != 1) {
       stop("Each part must have an equal number of replicates")
     }
@@ -15,36 +16,50 @@ ss_calcs = function(data, part, operator = NULL, meas){
     r = unique(reps$rep)
 
     p = data %>%
-      select(part) %>%
-      distinct() %>%
-      count()
+        select({{part}}) %>%
+        distinct() %>%
+        count()
 
     t = data %>%
-      select(operator) %>%
+      select({{operator}}) %>%
       distinct() %>%
       count()
 
     SS_oper = data %>%
-      group_by(operator) %>%
-      summarize(op_mean = mean(meas))
+      group_by({{operator}}) %>%
+      mutate(op_mean = mean({{meas}})) %>%
+      ungroup() %>%
+      group_by({{operator}},{{part}}) %>%
+      mutate(overall_mean = mean({{meas}})) %>%
+      mutate(sq_error = (op_mean - overall_mean)^2)
 
-    SS_oper_error = sum((SS_oper$op_mean - mean(data$meas))^2)
+    SS_oper_error = sum(SS_oper$sq_error)
 
     SS_part = data %>%
-      group_by(part) %>%
-      summarize(part_mean = mean(meas))
+      group_by({{part}}) %>%
+      mutate(part_mean = mean({{meas}})) %>%
+      ungroup() %>%
+      group_by({{operator}},{{part}}) %>%
+      mutate(overall_mean = mean({{meas}})) %>%
+      mutate(sq_error = (part_mean -overall_mean)^2)
 
-    SS_part_error = sum((SS_part$part_mean - mean(data$meas))^2)
+    SS_part_error = sum(SS_part$sq_error)
 
-    SS_total_error = sum((data$meas -  mean(data$meas))^2)
+    SS_total = data %>%
+      group_by({{operator}},{{part}}) %>%
+      mutate(overall_mean = mean({{meas}})) %>%
+      mutate(sq_error = ({{meas}} - overall_mean)^2)
+
+    SS_total_error = sum(SS_total$sq_error)
 
     SS_equip = data %>%
-      group_by(operator, part) %>%
-      summarize(op_part_mean = mean(meas))
+      group_by({{operator}}, {{part}}) %>%
+      mutate(op_part_mean = mean({{meas}})) %>%
+      mutate(sq_error = (op_part_mean - {{meas}})^2)
 
-    SS_equip_error = sum((SS_equip$op_part_mean - data$meas)^2)
+    SS_equip_error = sum(SS_equip$sq_error)
 
-    SS_op_part_error = SS_total_error - (SS_tech_error + SS_part_error + SS_equip_error)
+    SS_op_part_error = SS_total_error - (SS_oper_error + SS_part_error + SS_equip_error)
 
     return(list(reps = r, num_parts = p, num_opers = t,
                 SS_oper_error = SS_oper_error,
