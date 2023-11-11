@@ -69,6 +69,7 @@ ss_calcs = function(data, part, operator = NULL, meas){
                 SS_total_error = SS_total_error))
 }
 
+#Change inputs here to requirements to veed into ss_calcs
 var_calcs = function(data, reps, num_parts, num_opers, SS_oper_error, SS_part_error, SS_equip_error, SS_op_part_error)  {
 
   MS_oper = SS_oper_error/(num_opers - 1)
@@ -85,4 +86,6 @@ var_calcs = function(data, reps, num_parts, num_opers, SS_oper_error, SS_part_er
   if(var_oper_part<0){var_oper_part=0}
   if(var_part<0){var_part=0}
   if(var_tech<0){var_tech=0}
+
+  return(list(var_repeat = var_repeat, var_oper_part =, var_part=var_part, var_tech=var_tech))
 }
