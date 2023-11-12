@@ -61,16 +61,16 @@ ss_calcs = function(data, part, operator = NULL, meas){
 
     SS_op_part_error = SS_total_error - (SS_oper_error + SS_part_error + SS_equip_error)
 
-    return(list(reps = r, num_parts = p, num_opers = t,
-                SS_oper_error = SS_oper_error,
-                SS_part_error=SS_part_error,
-                SS_equip_error = SS_equip_error,
-                SS_op_part_error = SS_op_part_error,
-                SS_total_error = SS_total_error))
+    return(list(reps = as.integer(r), num_parts = as.integer(p), num_opers = as.integer(t),
+                SS_oper_error = as.double(SS_oper_error),
+                SS_part_error = as.double(SS_part_error),
+                SS_equip_error = as.double(SS_equip_error),
+                SS_op_part_error = as.double(SS_op_part_error),
+                SS_total_error = as.double(SS_total_error)))
 }
 
 #Change inputs here to requirements to veed into ss_calcs
-var_calcs = function(data, part, operator = NULL, meas)  {
+anova_var_calcs = function(data, part, operator = NULL, meas)  {
 
   ss_comp = ss_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
 
@@ -88,15 +88,37 @@ var_calcs = function(data, part, operator = NULL, meas)  {
   MS_oper_part = SS_op_part_error/((num_opers - 1)*(num_parts - 1))
   MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
 
+  #compute p-val part_oper interaction
+  F_stat = MS_oper_part/(MS_equip)
+  p_val = pf(F_stat[[1]],
+             df1 = as.integer((num_opers - 1)*(num_parts - 1)),
+             df2 = as.integer(num_parts * num_opers * (reps-1)))
+
+  if (p_val < .05) {
+    MS_equip = (SS_equip_error + SS_op_part_error)/((num_opers - 1)*(num_parts - 1)+(num_parts * num_opers * (reps-1)))
+  }else{
+    MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
+    }
+
   var_repeat = MS_equip
   var_oper_part = (MS_part - MS_equip)/reps
   var_part = (MS_part - MS_oper_part)/(reps * num_opers)
-  var_tech = (MS_oper - MS_oper_part)/(reps * num_parts)
+  var_oper = (MS_oper - MS_oper_part)/(reps * num_parts)
 
   if(var_repeat<0){var_repeat=0}
   if(var_oper_part<0){var_oper_part=0}
   if(var_part<0){var_part=0}
-  if(var_tech<0){var_tech=0}
+  if(var_oper<0){var_tech=0}
 
-  return(list(var_repeat = var_repeat, var_oper_part =var_oper_part, var_part=var_part, var_tech=var_tech))
+  repeatability = var_repeat
+  reproducibility = var_oper + var_oper_part
+  total_grr = repeatability + reproducibility
+  part_to_part = var_part
+  total_var = total_grr + part_to_part
+
+  return(list(repeatability = as.double(repeatability),
+              reproducibility = as.double(reproducibility),
+              total_grr = as.double(total_grr),
+              part_to_part = as.double(part_to_part),
+              total_var = as.double(total_var)))
 }
