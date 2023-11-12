@@ -1,3 +1,6 @@
+#TODO
+#Source data.R script for g/m vals
+
 xbar_repeat = function(data, part, operator, meas){
   reps = data %>%
     select({{part}}, {{operator}}) %>%
@@ -93,4 +96,21 @@ part_to_part = function(data, part, meas){
 
   return(r_p)
 
+}
+
+xbar_varcomps = function(data, part, operator = NULL, meas)  {
+
+  repeatability = xbar_repeat(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+  reproducibility = xbar_reproduce(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+  part_to_part = part_to_part(data = {{data}}, part = {{part}}, meas = {{meas}})
+  total_grr = repeatabiity + reproducibility
+  total_var = total_grr + part_to_part
+
+  return(list(
+    repeatability,
+    reproducibility,
+    total_grr,
+    part_to_part,
+    total_var
+  ))
 }
