@@ -1,5 +1,6 @@
 #TODO
 #Source data.R script for g/m vals
+source("data.R")
 
 xbar_repeat = function(data, part, operator, meas){
   reps = data %>%
