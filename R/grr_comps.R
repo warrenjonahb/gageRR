@@ -7,7 +7,9 @@ source("xbar_r_vacromps.R")
 grr_calc = function(data, part, operator = NULL, meas, method = 'anova') {
   if(method == 'anova') {
 
-    anova_var_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+    varComps = anova_var_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+    gage_eval = data.frame(matrix(unlist(varComps)))
+    row.names(gage_eval) <-names(varComps)
 
 
   }
