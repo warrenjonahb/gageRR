@@ -87,7 +87,8 @@ anova_var_calcs = function(data, part, operator = NULL, meas)  {
   F_stat = MS_oper_part/(MS_equip)
   p_val = pf(F_stat[[1]],
              df1 = as.integer((num_opers - 1)*(num_parts - 1)),
-             df2 = as.integer(num_parts * num_opers * (reps-1)))
+             df2 = as.integer(num_parts * num_opers * (reps-1)),
+            lower.tail = FALSE    )
 
   if (p_val < .05) {
     MS_equip = (SS_equip_error + SS_op_part_error)/((num_opers - 1)*(num_parts - 1)+(num_parts * num_opers * (reps-1)))
@@ -100,10 +101,14 @@ anova_var_calcs = function(data, part, operator = NULL, meas)  {
   var_part = (MS_part - MS_oper_part)/(reps * num_opers)
   var_oper = (MS_oper - MS_oper_part)/(reps * num_parts)
 
+  if (p_val > .05) {
+    var_oper_part = 0
+  }
+
   if(var_repeat<0){var_repeat=0}
   if(var_oper_part<0){var_oper_part=0}
   if(var_part<0){var_part=0}
-  if(var_oper<0){var_tech=0}
+  if(var_oper<0){var_oper=0}
 
   repeatability = var_repeat
   reproducibility = var_oper + var_oper_part
