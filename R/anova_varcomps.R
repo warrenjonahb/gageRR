@@ -26,27 +26,22 @@ ss_calcs = function(data, part, operator = NULL, meas){
       count()
 
     SS_oper = data %>%
+      mutate(overall_mean = mean({{meas}})) %>%
       group_by({{operator}}) %>%
       mutate(op_mean = mean({{meas}})) %>%
-      ungroup() %>%
-      group_by({{operator}},{{part}}) %>%
-      mutate(overall_mean = mean({{meas}})) %>%
       mutate(sq_error = (op_mean - overall_mean)^2)
 
     SS_oper_error = sum(SS_oper$sq_error)
 
     SS_part = data %>%
+      mutate(overall_mean = mean({{meas}})) %>%
       group_by({{part}}) %>%
       mutate(part_mean = mean({{meas}})) %>%
-      ungroup() %>%
-      group_by({{operator}},{{part}}) %>%
-      mutate(overall_mean = mean({{meas}})) %>%
       mutate(sq_error = (part_mean -overall_mean)^2)
 
     SS_part_error = sum(SS_part$sq_error)
 
     SS_total = data %>%
-      group_by({{operator}},{{part}}) %>%
       mutate(overall_mean = mean({{meas}})) %>%
       mutate(sq_error = ({{meas}} - overall_mean)^2)
 
