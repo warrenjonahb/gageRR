@@ -6,7 +6,7 @@ ss_calcs = function(data, part, operator = NULL, meas){
     reps = data %>%
       select({{part}}, {{operator}}) %>%
       group_by({{part}}, {{operator}}) %>%
-      summarize(rep = n())
+      summarize(rep = n(), .groups = 'keep')
 
   #Small correction here need equal number of reps across each operator/part combo
     if (length(unique(reps$rep)) != 1) {

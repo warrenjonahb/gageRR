@@ -1,12 +1,12 @@
 #TODO
 #Source data.R script for g/m vals
 source("data.R")
-options(dplyr.summarise.inform = FALSE)
+
 xbar_repeat = function(data, part, operator, meas){
   reps = data %>%
     select({{part}}, {{operator}}) %>%
     group_by({{part}}, {{operator}}) %>%
-    summarize(rep = n())
+    summarize(rep = n(), .groups = 'keep')
 
   #Small correction here need equal number of reps across each operator/part combo
   if (length(unique(reps$rep)) != 1) {
@@ -35,7 +35,7 @@ xbar_repeat = function(data, part, operator, meas){
   xbar_rep = data %>%
     select({{part}}, {{operator}}, {{meas}}) %>%
     group_by({{part}}, {{operator}}) %>%
-    summarize(repeatbility = (max({{meas}})-min({{meas}}))/(a*k))
+    summarize(repeatbility = (max({{meas}})-min({{meas}}))/(a*k), .groups = 'keep')
 
   repeatability = (sum(xbar_rep$repeatbility)/d)^2 #Squaring to return varComp not SD
 
@@ -48,7 +48,7 @@ xbar_reproduce = function(data, part, operator, meas){
   reps = data %>%
     select({{part}}, {{operator}}) %>%
     group_by({{part}}, {{operator}}) %>%
-    summarize(rep = n())
+    summarize(rep = n(), .groups = 'keep')
 
   #Small correction here need equal number of reps across each operator/part combo
   if (length(unique(reps$rep)) != 1) {
@@ -77,7 +77,7 @@ xbar_reproduce = function(data, part, operator, meas){
   xbar_i = data %>%
     select({{operator}}, {{meas}}) %>%
     group_by({{operator}}) %>%
-    summarize(op_avg = mean({{meas}}))
+    summarize(op_avg = mean({{meas}}), .groups = 'keep')
 
   x_diff = max(xbar_i$op_avg) - min(xbar_i$op_avg)
 
@@ -108,7 +108,7 @@ part_to_part = function(data, part, meas){
 
   part_meas = data %>%
     group_by({{part}}) %>%
-    summarize(avg_meas = mean({{meas}}))
+    summarize(avg_meas = mean({{meas}}), .groups = 'keep')
 
   r_p = ((max(part_meas$avg_meas) - min(part_meas$avg_meas))/d)^2
 
