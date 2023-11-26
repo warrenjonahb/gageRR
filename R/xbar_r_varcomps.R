@@ -116,7 +116,7 @@ part_to_part = function(data, part, meas){
 
 }
 
-xbar_varcomps = function(data, part, operator = NULL, meas)  {
+xbar_varcomps = function(data, part, operator, meas)  {
 
   repeatability = xbar_repeat(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
   reproducibility = xbar_reproduce(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})

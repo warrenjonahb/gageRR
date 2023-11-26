@@ -1,7 +1,4 @@
-ss_calcs = function(data, part, operator = NULL, meas){
-
-  if (is.null(data$operator)){
-    data$operator = 'A'}
+ss_calcs = function(data, part, operator, meas){
 
     reps = data %>%
       select({{part}}, {{operator}}) %>%
@@ -65,7 +62,7 @@ ss_calcs = function(data, part, operator = NULL, meas){
 }
 
 #Change inputs here to requirements to veed into ss_calcs
-anova_var_calcs = function(data, part, operator = NULL, meas)  {
+anova_var_calcs = function(data, part, operator, meas)  {
 
   ss_comp = ss_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
 
