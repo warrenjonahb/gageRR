@@ -1,4 +1,4 @@
-source("data.R")
+
 #' XBAR & R Variance Component Calculations
 #'
 #' @param data

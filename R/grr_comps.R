@@ -1,7 +1,3 @@
-
-source("anova_varcomps.R")
-source("xbar_r_vacromps.R")
-
 #' GRR Calculations
 #'
 #' @param data
