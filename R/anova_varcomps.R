@@ -1,3 +1,14 @@
+#' ANOVA Variance Components
+#'
+#' @param data
+#' @param part
+#' @param operator
+#' @param meas
+#'
+#' @return
+#' @export
+#'
+#' @examples
 ss_calcs = function(data, part, operator, meas){
 
     reps = data %>%

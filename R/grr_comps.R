@@ -2,6 +2,18 @@
 source("anova_varcomps.R")
 source("xbar_r_vacromps.R")
 
+#' GRR Calculations
+#'
+#' @param data
+#' @param part
+#' @param operator
+#' @param meas
+#' @param method
+#'
+#' @return
+#' @export
+#'
+#' @examples
 grr_calc = function(data, part, operator, meas, method = 'anova') {
 
   if(method == 'anova') {

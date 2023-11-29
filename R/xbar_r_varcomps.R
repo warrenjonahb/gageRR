@@ -1,7 +1,15 @@
-#TODO
-#Source data.R script for g/m vals
 source("data.R")
-
+#' XBAR & R Variance Component Calculations
+#'
+#' @param data
+#' @param part
+#' @param operator
+#' @param meas
+#'
+#' @return
+#' @export
+#'
+#' @examples
 xbar_repeat = function(data, part, operator, meas){
   reps = data %>%
     select({{part}}, {{operator}}) %>%
