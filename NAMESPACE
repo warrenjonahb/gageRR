@@ -3,3 +3,4 @@
 export(grr_calc)
 export(ss_calcs)
 export(xbar_repeat)
+import(dplyr)
