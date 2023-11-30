@@ -7,7 +7,18 @@
 grr_calc(data, part, operator, meas, method = "anova")
 }
 \arguments{
-\item{method}{}
+\item{data}{An R dataframe or tible.}
+
+\item{part}{The column in data specifying the unique ID of the part being measured}
+
+\item{operator}{A column in data specifying the operator for the recorded measurement}
+
+\item{meas}{A column in data where the measurement value is recorded.}
+
+\item{method}{A string specifying 'anova' or 'xbar_r'}
+}
+\value{
+A list of two dataframes: VarianceComponents and GageEval
 }
 \description{
 GRR Calculations

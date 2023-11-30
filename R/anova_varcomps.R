@@ -1,11 +1,11 @@
 #' ANOVA Variance Components
 #'
-#' @param data
-#' @param part
-#' @param operator
-#' @param meas
+#' @param data An R dataframe or tible.
+#' @param part The column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
 #'
-#' @return
+#' @return A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
 #' @export
 #'
 #' @examples

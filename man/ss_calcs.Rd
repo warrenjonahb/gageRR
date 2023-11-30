@@ -7,7 +7,16 @@
 ss_calcs(data, part, operator, meas)
 }
 \arguments{
-\item{meas}{}
+\item{data}{An R dataframe or tible.}
+
+\item{part}{The column in data specifying the unique ID of the part being measured}
+
+\item{operator}{A column in data specifying the operator for the recorded measurement}
+
+\item{meas}{A column in data where the measurement value is recorded.}
+}
+\value{
+A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
 }
 \description{
 ANOVA Variance Components

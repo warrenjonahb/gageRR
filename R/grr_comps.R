@@ -1,12 +1,12 @@
 #' GRR Calculations
 #'
-#' @param data
-#' @param part
-#' @param operator
-#' @param meas
-#' @param method
+#' @param data An R dataframe or tible.
+#' @param part The column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
+#' @param method A string specifying 'anova' or 'xbar_r'
 #'
-#' @return
+#' @return A list of two dataframes: VarianceComponents and GageEval
 #' @export
 #'
 #' @examples
