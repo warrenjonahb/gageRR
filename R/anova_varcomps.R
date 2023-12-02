@@ -1,14 +1,41 @@
-#' ANOVA Variance Components
+#' ANOVA Sum of Squares Calculations
 #'
-#' @param data An R dataframe or tible.
-#' @param part The column in data specifying the unique ID of the part being measured
+#' @param data An R dataframe or tibble.
+#' @param part A column in data specifying the unique ID of the part being measured
 #' @param operator A column in data specifying the operator for the recorded measurement
 #' @param meas A column in data where the measurement value is recorded.
 #'
-#' @return A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
+#' @return A list of numeric values for the sum of squares error for operator, part, equipment, operator and part interaction, and total error.
 #' @export
 #'
 #' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0173,
+#' 0.0151,
+#' 0.0173,
+#' 0.0163,
+#' 0.0155,
+#' 0.0175))
+#'
+#'ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+
 ss_calcs = function(data, part, operator, meas){
 
     reps = data %>%
@@ -72,7 +99,44 @@ ss_calcs = function(data, part, operator, meas){
                 SS_total_error = as.double(SS_total_error)))
 }
 
-#Change inputs here to requirements to veed into ss_calcs
+#' ANOVA Variance Component Calculations
+#'
+#' @param data An R dataframe or tibble.
+#' @param part A column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
+#'
+#' @return A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
+#' @export
+#'
+#' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0173,
+#' 0.0151,
+#' 0.0173,
+#' 0.0163,
+#' 0.0155,
+#' 0.0175))
+#'
+#'anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+
 anova_var_calcs = function(data, part, operator, meas)  {
 
   ss_comp = ss_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})

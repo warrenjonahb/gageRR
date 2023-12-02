@@ -2,22 +2,50 @@
 % Please edit documentation in R/anova_varcomps.R
 \name{ss_calcs}
 \alias{ss_calcs}
-\title{ANOVA Variance Components}
+\title{ANOVA Sum of Squares Calculations}
 \usage{
 ss_calcs(data, part, operator, meas)
 }
 \arguments{
-\item{data}{An R dataframe or tible.}
+\item{data}{An R dataframe or tibble.}
 
-\item{part}{The column in data specifying the unique ID of the part being measured}
+\item{part}{A column in data specifying the unique ID of the part being measured}
 
 \item{operator}{A column in data specifying the operator for the recorded measurement}
 
 \item{meas}{A column in data where the measurement value is recorded.}
 }
 \value{
-A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
+A list of numeric values for the sum of squares error for operator, part, equipment, operator and part interaction, and total error.
 }
 \description{
-ANOVA Variance Components
+ANOVA Sum of Squares Calculations
+}
+\examples{
+data = data.frame(
+SN = c(
+'SerialNumber_01',
+'SerialNumber_01',
+'SerialNumber_01',
+'SerialNumber_01',
+'SerialNumber_01',
+'SerialNumber_01'),
+
+Operator = c(
+'Operator_01',
+'Operator_01',
+'Operator_01',
+'Operator_02',
+'Operator_02',
+'Operator_02'),
+
+Measure = c(
+0.0173,
+0.0151,
+0.0173,
+0.0163,
+0.0155,
+0.0175))
+
+ss_calcs(data, part = SN, operator = Operator, meas = Measure)
 }

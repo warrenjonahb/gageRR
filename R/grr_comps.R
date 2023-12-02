@@ -12,6 +12,34 @@
 #' @export
 #'
 #' @examples
+#'
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0173,
+#' 0.0151,
+#' 0.0173,
+#' 0.0163,
+#' 0.0155,
+#' 0.0175))
+#'
+#'grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
+
 grr_calc = function(data, part, operator, meas, LSL = NULL, USL = NULL, method = 'anova') {
 
   if(method == 'anova') {

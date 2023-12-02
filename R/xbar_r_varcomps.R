@@ -1,15 +1,42 @@
 
-#' XBAR & R Variance Component Calculations
+#' Average and Range Method Repeatability Calculation
 #'
-#' @param data An R dataframe or tible.
+#' @param data An R dataframe or tibble.
 #' @param part The column in data specifying the unique ID of the part being measured
 #' @param operator A column in data specifying the operator for the recorded measurement
 #' @param meas A column in data where the measurement value is recorded.
 #'
-#' @return A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
+#' @return A number. The measure of repeatability for the given data.
 #' @export
 #'
 #' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0173,
+#' 0.0151,
+#' 0.0173,
+#' 0.0163,
+#' 0.0155,
+#' 0.0175))
+#'
+#'xbar_repeat(data, part = SN, operator = Operator, meas = Measure)
+
 xbar_repeat = function(data, part, operator, meas){
   reps = data %>%
     select({{part}}, {{operator}}) %>%
@@ -51,6 +78,44 @@ xbar_repeat = function(data, part, operator, meas){
 
 }
 
+#' Average and Range Method Reproducibility Calculation
+#'
+#' @param data An R dataframe or tibble.
+#' @param part The column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
+#'
+#' @return A number. The measure of reproducibility for the given data.
+#' @export
+#'
+#' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0173,
+#' 0.0151,
+#' 0.0173,
+#' 0.0163,
+#' 0.0155,
+#' 0.0175))
+#'
+#'xbar_reproduce(data, part = SN, operator = Operator, meas = Measure)
+
 xbar_reproduce = function(data, part, operator, meas){
 
   reps = data %>%
@@ -58,7 +123,6 @@ xbar_reproduce = function(data, part, operator, meas){
     group_by({{part}}, {{operator}}) %>%
     summarize(rep = n(), .groups = 'keep')
 
-  #Small correction here need equal number of reps across each operator/part combo
   if (length(unique(reps$rep)) != 1) {
     stop("Each part must have an equal number of replicates")
   }
@@ -100,7 +164,44 @@ xbar_reproduce = function(data, part, operator, meas){
 
 }
 
-#Need to pass inputs to ss_calcs and get back g and m.
+#' Average and Range Method Part to Part Variance Calculation
+#'
+#' @param data An R dataframe or tibble.
+#' @param part The column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
+#'
+#' @return A number. The measure of part to part variation for the given data.
+#' @export
+#'
+#' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0173,
+#' 0.0151,
+#' 0.0173,
+#' 0.0163,
+#' 0.0155,
+#' 0.0175))
+#'
+#'part_to_part(data, part = SN, meas = Measure)
+
 part_to_part = function(data, part, meas){
 
   a = data %>%
@@ -123,6 +224,44 @@ part_to_part = function(data, part, meas){
   return(r_p)
 
 }
+
+#' Average and Range Method Variance Component Summary
+#'
+#' @param data An R dataframe or tibble.
+#' @param part The column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
+#'
+#' @return A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
+#' @export
+#'
+#' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0173,
+#' 0.0151,
+#' 0.0173,
+#' 0.0163,
+#' 0.0155,
+#' 0.0175))
+#'
+#'xbar_varcomps(data, part = SN, part = SN, operator = Operator, meas = Measure)
 
 xbar_varcomps = function(data, part, operator, meas)  {
 
