@@ -32,9 +32,13 @@ Three references were used for the developement of this package:
 
 1. "MSA Reference Manual", 4th Edition, Chrysler Group LLC, Ford Motor Company, General Motors Corporation.
 
-2. "Methods and formulas for gage R&R table in Crossed Gage R&R Study", https://support.minitab.com/en-us/minitab/21/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/crossed-gage-r-r-study/methods-and-formulas/gage-r-r-table/
+2. "Methods and formulas for gage R&R table in Crossed Gage R&R Study"[^1]
 
-3. "Six Sigma Study Guide", https://sixsigmastudyguide.com/repeatability-and-reproducibility-rr/
+[^1]: https://support.minitab.com/en-us/minitab/21/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/crossed-gage-r-r-study/methods-and-formulas/gage-r-r-table/
+
+3. "Six Sigma Study Guide"[^1] 
+
+[^2]: https://sixsigmastudyguide.com/repeatability-and-reproducibility-rr/
 
 ## Contents
 
@@ -94,7 +98,9 @@ $R_p$ - range of part average values
 
 $d_2$ - See Appendix C Table C1 (Ref 1) where g = 1 and m = number of parts. 
 
-Using the data object inspected above we can make these calculations as follows
+### gageRR Average and Range Functions
+
+*Using the data object inspected above we can make these calculations as follows*
 
 ```{r xbar}
 xbar_repeat(data, part = SN, operator = Operator, meas = Measure)
@@ -114,7 +120,9 @@ And Total Variation as:
 
 $$ \sqrt{Total Gage RR^2 + PartToPart^2}$$
 
-A summary list of these Average and Range VARCOMPS can be found with the following command:
+### gageRR Average and Range VARCOMP Function
+
+*A summary list of these Average and Range VARCOMPS can be found with the following command:*
 
 ```{r xbar_varcomps}
 xbar_varcomps(data, part = SN, operator = Operator, meas = Measure)
@@ -140,12 +148,14 @@ p - Number of Parts
 
 r - Number of Repetitions (or trials)
 
-The final sum of squares (Operator * Part) is calcuated as:
+The final sum of squares (Operator * Part) is calculated as:
 
 $$SS_{Operator * Part} = SS
 _{Total} - (SS_{Operator} + SS_{Part} + SS_{Equipment})$$
 
-With the gageRR package we can caclulate the sum of squares with the following command:
+### gageRR Sum of Squares Funciton
+
+*With the gageRR package we can caclulate the sum of squares with the following command:*
 
 ```{r ss}
 ss_calcs(data, part = SN, operator = Operator, meas = Measure)
@@ -189,7 +199,9 @@ $$\sigma^2_{Total-gageRR} = \sigma^2_{Repeatability} + \sigma^2_{Reproducibility
 
 $$\sigma^2_{Total-VAR} =\sigma^2_{Total-gageRR} +  \sigma^2_{Part-to-Part}$$
 
-With the gageRR package we can calculate the ANOVA VARCOMPs with the following command:
+### gageRR ANOVA VARCOMP Functions
+
+*With the gageRR package we can calculate the ANOVA VARCOMPs with the following command:*
 
 ```{r anova_varcomps}
 anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
@@ -207,7 +219,9 @@ Study Variation - Standard deviation for each source multiplied by 6 (where 6s r
 
 Percent Tolerance - Percentage of the tolerance band (if provided) that is taken up by the study variation for each component.  
 
-With the gageRR package we can produce a list of the gage evaluation tables as two dataframes with the following command:
+### gageRR Gage Evaluation Function
+
+*With the gageRR package we can produce a list of the gage evaluation tables as two dataframes with the following command:*
 
 ```{r gage_eval}
 grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = NULL, USL = .04, method = 'anova')
