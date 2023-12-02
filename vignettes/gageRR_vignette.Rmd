@@ -1,0 +1,215 @@
+---
+title: "Analyzing Gage Repeatability and Reproducibility with gageRR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyzing Gage Repeatability and Reproducibility with gageRR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(gageRR)
+```
+
+## Introduction
+
+Analyzing measurement system error is a critical component of the manufacturing process in numerous industries.  While a number of methods exist to analyze measurement error they can all be broadly described as repeatability and reproducibilty studies (or often referred to as Gage R&R studies).  Industries can then provide guidelines or limitations on the amount of error that is acceptable for a given product feature based on the outcome of a Gage R&R study.
+
+The gageRR package provides two methods to analyze repeatability and reproducibility: Analysis of Variance (ANOVA) method and Average and Range method.  These methods require a balanced study, that is the same number of repititions and for each operator and part combination. 
+
+This vignette explains the use of the package and demonstrates typical workflows.
+
+## Reference
+
+Three references were used for the developement of this package:
+
+1. "MSA Reference Manual", 4th Edition, Chrysler Group LLC, Ford Motor Company, General Motors Corporation.
+
+2. "Methods and formulas for gage R&R table in Crossed Gage R&R Study", https://support.minitab.com/en-us/minitab/21/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/crossed-gage-r-r-study/methods-and-formulas/gage-r-r-table/
+
+3. "Six Sigma Study Guide", https://sixsigmastudyguide.com/repeatability-and-reproducibility-rr/
+
+## Contents
+
+1. Input Data
+2. Average and Range Method
+3. ANOVA Method
+4. Gage Evaluations
+
+## 1. Input Data
+
+All functions within the gageRR package require the data to be formatted with one measurement per row.  That is, each measurement for a serial number and operator combination should represent a single record. 
+
+```{r data}
+head(data)
+```
+
+## 2. Average and Range Method
+
+The Average and Range Method allows for the calculation of repeatability and reproducibility but will does not account for the interaction between the part and operator. Each variance compnent (VARCOMP) can be defined as follows:
+
+### Repeatability 
+
+$$(\sum_{i=1}^a \sum_{j=1}^k \frac{R_{ij}}{a*k}) * \frac{1}{d_2} $$
+
+Where:
+
+a - Number of parts
+
+k - Number of operators
+
+$R_{ij}$ - Range of measurements by operator j for part i
+
+$d_2$ - See Appendix C Table C1 (Ref 1) where g = a*k and m = number of replicates.
+
+
+### Reproducibility
+
+$$\sqrt{[X_{diff}* \frac{1}{d_2}] - \frac{Repeatability^2}{a*r} }$$
+
+Where:
+
+$X_{diff} = max(\overline{x}_1...,\overline{x}_k) - min(\overline{x}_1...,\overline{x}_k)$
+
+a - Number of parts
+
+r - Number of trials (or repetitions)
+
+$d_2$ - See Appendix C Table C1 (Ref 1) where g = 1 and m = number of operators. 
+
+### Part to Part
+
+$$R_p * \frac{1}{d_2}$$
+
+Where:
+
+$R_p$ - range of part average values
+
+$d_2$ - See Appendix C Table C1 (Ref 1) where g = 1 and m = number of parts. 
+
+Using the data object inspected above we can make these calculations as follows
+
+```{r xbar}
+xbar_repeat(data, part = SN, operator = Operator, meas = Measure)
+
+xbar_reproduce(data, part = SN, operator = Operator, meas = Measure)
+
+part_to_part(data, part = SN, meas = Measure )
+```
+
+### Total Gage R&R / Total Variation
+
+We can now calculate Total Gage R&R as:
+
+$$ \sqrt{Repeatability^2 + Reproducibility^2}$$
+
+And Total Variation as:
+
+$$ \sqrt{Total Gage RR^2 + PartToPart^2}$$
+
+A summary list of these Average and Range VARCOMPS can be found with the following command:
+
+```{r xbar_varcomps}
+xbar_varcomps(data, part = SN, operator = Operator, meas = Measure)
+```
+
+## 3. ANOVA Method
+
+The Analysis of Variance Method allows us to take into account the interaction between the operator and the part.  The first step is to calculate the sum of squares for the operator, part, total and equipments as follows:
+
+$$SS_{Operator} = \sum_{i=1}^t(X_i - \overline{X})^2$$
+
+$$SS_{Part} = \sum_{j=1}^p(X_j - \overline{X})^2$$
+
+$$SS_{Total} = \sum_{i=1}^t \sum_{j=1}^p \sum_{m=1}^r(X_{ijm} - \overline{X})^2$$
+
+$$SS_{Total} = \sum_{i=1}^t \sum_{j=1}^p \sum_{m=1}^r(X_{ijm} - \overline{X}_{ij})^2$$
+
+Where:
+
+t - Number of Operators
+
+p - Number of Parts
+
+r - Number of Repetitions (or trials)
+
+The final sum of squares (Operator * Part) is calcuated as:
+
+$$SS_{Operator * Part} = SS
+_{Total} - (SS_{Operator} + SS_{Part} + SS_{Equipment})$$
+
+With the gageRR package we can caclulate the sum of squares with the following command:
+
+```{r ss}
+ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+```
+
+Mean square values can now be found as:
+
+$$MS_{Operator} = \frac{SS_{Operator}}{t-1}$$
+
+$$MS_{Part} = \frac{SS_{Part}}{p-1}$$
+
+$$MS_{Operator * Part} = \frac{SS_{Operator*Part}}{(t-1)(p-1)}$$
+
+$$MS_{Equipment} = \frac{SS_{Equipment}}{t*p(r-1)}$$
+
+Note that we can now calculate the F-Statistic for the Operator and Part interaction as:
+
+$$\frac{MS_{Operator * Part}}{MS_{Equipment}}$$
+
+If the p-value for this F-Statistic is less than 0.05 the interaction will be included as a VARCOMP, otherwise it's assumed to be 0.
+
+Our final ANOVA VARCOMPs are:
+
+### Repeatability
+
+$$\sigma^2_{Repeatability} = MS_{Equipment}$$
+
+### Reproducibility
+
+$$\sigma^2_{Reproducibility} = \frac{MS_{Operator} - MS_{Operator * Part}}{(r)(p)}$$
+
+### Part to Part
+
+$$\sigma^2_{Part-to-Part} = \frac{MS_{Part} - MS_{Operator * Part}}{(r)(t)}$$
+
+### Total Gage R&R
+
+$$\sigma^2_{Total-gageRR} = \sigma^2_{Repeatability} + \sigma^2_{Reproducibility}$$
+
+### Total Variation
+
+$$\sigma^2_{Total-VAR} =\sigma^2_{Total-gageRR} +  \sigma^2_{Part-to-Part}$$
+
+With the gageRR package we can calculate the ANOVA VARCOMPs with the following command:
+
+```{r anova_varcomps}
+anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+```
+
+## Gage Evaluation
+
+Regardless of the method used above (Average and Range of ANOVA) we can now calculate the following gage statistics:
+
+Percent Contribution - Percentage of variation from each VARCOMP with respect to the total variation.
+
+Standard Deviation - The square root of the VARCOMP
+
+Study Variation - Standard deviation for each source multiplied by 6 (where 6s represents the process standard deviation)
+
+Percent Tolerance - Percentage of the tolerance band (if provided) that is taken up by the study variation for each component.  
+
+With the gageRR package we can produce a list of the gage evaluation tables as two dataframes with the following command:
+
+```{r gage_eval}
+grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = NULL, USL = .04, method = 'anova')
+```
+
