@@ -4,7 +4,7 @@
 \alias{grr_calc}
 \title{GRR Calculations}
 \usage{
-grr_calc(data, part, operator, meas, method = "anova")
+grr_calc(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova")
 }
 \arguments{
 \item{data}{An R dataframe or tible.}
@@ -14,6 +14,10 @@ grr_calc(data, part, operator, meas, method = "anova")
 \item{operator}{A column in data specifying the operator for the recorded measurement}
 
 \item{meas}{A column in data where the measurement value is recorded.}
+
+\item{LSL}{A number to specify the lower specification limit.}
+
+\item{USL}{A number to specify the upper specification limit.}
 
 \item{method}{A string specifying 'anova' or 'xbar_r'}
 }
