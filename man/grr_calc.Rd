@@ -2,14 +2,14 @@
 % Please edit documentation in R/grr_comps.R
 \name{grr_calc}
 \alias{grr_calc}
-\title{GRR Calculations}
+\title{Gage R&R Evaluation}
 \usage{
 grr_calc(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova")
 }
 \arguments{
 \item{data}{An R dataframe or tible.}
 
-\item{part}{The column in data specifying the unique ID of the part being measured}
+\item{part}{A column in the data specifying the unique ID of the part being measured}
 
 \item{operator}{A column in data specifying the operator for the recorded measurement}
 
@@ -25,7 +25,7 @@ grr_calc(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova")
 A list of two dataframes: VarianceComponents and GageEval
 }
 \description{
-GRR Calculations
+Gage R&R Evaluation
 }
 \examples{
 
@@ -33,26 +33,32 @@ data = data.frame(
 SN = c(
 'SerialNumber_01',
 'SerialNumber_01',
+'SerialNumber_02',
+'SerialNumber_02',
 'SerialNumber_01',
 'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_01'),
+'SerialNumber_02',
+'SerialNumber_02'),
 
 Operator = c(
 'Operator_01',
 'Operator_01',
 'Operator_01',
+'Operator_01',
+'Operator_02',
 'Operator_02',
 'Operator_02',
 'Operator_02'),
 
 Measure = c(
-0.0173,
-0.0151,
-0.0173,
-0.0163,
+0.0172,
+0.0177,
 0.0155,
-0.0175))
+0.0159,
+0.0174,
+0.0181,
+0.0152,
+0.0176))
 
 grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
 }

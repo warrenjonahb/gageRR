@@ -13,26 +13,32 @@
 #' SN = c(
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01'),
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
 #'
 #' Operator = c(
 #' 'Operator_01',
 #' 'Operator_01',
 #' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02'),
 #'
 #'Measure = c(
-#' 0.0173,
-#' 0.0151,
-#' 0.0173,
-#' 0.0163,
+#' 0.0172,
+#' 0.0177,
 #' 0.0155,
-#' 0.0175))
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
 #'
 #'ss_calcs(data, part = SN, operator = Operator, meas = Measure)
 
@@ -114,26 +120,32 @@ ss_calcs = function(data, part, operator, meas){
 #' SN = c(
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01'),
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
 #'
 #' Operator = c(
 #' 'Operator_01',
 #' 'Operator_01',
 #' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02'),
 #'
 #'Measure = c(
-#' 0.0173,
-#' 0.0151,
-#' 0.0173,
-#' 0.0163,
+#' 0.0172,
+#' 0.0177,
 #' 0.0155,
-#' 0.0175))
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
 #'
 #'anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
 
@@ -150,19 +162,39 @@ anova_var_calcs = function(data, part, operator, meas)  {
   SS_op_part_error = ss_comp$SS_op_part_error
   SS_total_error = ss_comp$SS_total_error
 
-  MS_oper = SS_oper_error/(num_opers - 1)
-  MS_part = SS_part_error/(num_parts - 1)
-  MS_oper_part = SS_op_part_error/((num_opers - 1)*(num_parts - 1))
+  if(num_opers == 1){
+    MS_oper = 0
+  }else{
+    MS_oper = SS_oper_error/(num_opers - 1)
+  }
+
+  if(num_parts == 1){
+    MS_part = 0
+  }else{
+    MS_part = SS_part_error/(num_parts - 1)
+  }
+
+  if(num_parts == 1 | num_opers == 1){
+    MS_oper_part = 0
+  }else{
+    MS_oper_part = SS_op_part_error/((num_opers - 1)*(num_parts - 1))
+  }
+
   MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
 
   #compute p-val part_oper interaction
+  if(num_parts == 1 | num_opers == 1){
+    p_val = NULL
+  }else {
   F_stat = MS_oper_part/(MS_equip)
   p_val = pf(F_stat[[1]],
              df1 = as.integer((num_opers - 1)*(num_parts - 1)),
              df2 = as.integer(num_parts * num_opers * (reps-1)),
-            lower.tail = FALSE    )
+            lower.tail = FALSE    )}
 
-  if (p_val < .05) {
+  if(is.null(p_val)){
+    MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
+  }else  if (p_val < .05) {
     MS_equip = (SS_equip_error + SS_op_part_error)/((num_opers - 1)*(num_parts - 1)+(num_parts * num_opers * (reps-1)))
   }else{
     MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
@@ -173,7 +205,9 @@ anova_var_calcs = function(data, part, operator, meas)  {
   var_part = (MS_part - MS_oper_part)/(reps * num_opers)
   var_oper = (MS_oper - MS_oper_part)/(reps * num_parts)
 
-  if (p_val > .05) {
+  if (is.null(p_val)) {
+    var_oper_part = 0
+  }else  if (p_val > .05) {
     var_oper_part = 0
   }
 

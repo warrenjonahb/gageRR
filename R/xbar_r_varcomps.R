@@ -14,26 +14,32 @@
 #' SN = c(
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01'),
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
 #'
 #' Operator = c(
 #' 'Operator_01',
 #' 'Operator_01',
 #' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02'),
 #'
 #'Measure = c(
-#' 0.0173,
-#' 0.0151,
-#' 0.0173,
-#' 0.0163,
+#' 0.0172,
+#' 0.0177,
 #' 0.0155,
-#' 0.0175))
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
 #'
 #'xbar_repeat(data, part = SN, operator = Operator, meas = Measure)
 
@@ -93,26 +99,32 @@ xbar_repeat = function(data, part, operator, meas){
 #' SN = c(
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01'),
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
 #'
 #' Operator = c(
 #' 'Operator_01',
 #' 'Operator_01',
 #' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02'),
 #'
 #'Measure = c(
-#' 0.0173,
-#' 0.0151,
-#' 0.0173,
-#' 0.0163,
+#' 0.0172,
+#' 0.0177,
 #' 0.0155,
-#' 0.0175))
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
 #'
 #'xbar_reproduce(data, part = SN, operator = Operator, meas = Measure)
 
@@ -155,7 +167,9 @@ xbar_reproduce = function(data, part, operator, meas){
 
   repeatability = xbar_repeat(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
 
-  if((x_diff *1/d)^2 - (repeatability^2/(a*r)) > 0) {
+  if(m1 == 1){
+    reproducibility = 0
+  }else  if((x_diff *1/d)^2 - (repeatability^2/(a*r)) > 0) {
     reproducibility = (x_diff *1/d)^2 - (repeatability^2/(a*r))
   }else{
     reproducibility = 0
@@ -179,26 +193,32 @@ xbar_reproduce = function(data, part, operator, meas){
 #' SN = c(
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01'),
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
 #'
 #' Operator = c(
 #' 'Operator_01',
 #' 'Operator_01',
 #' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02'),
 #'
 #'Measure = c(
-#' 0.0173,
-#' 0.0151,
-#' 0.0173,
-#' 0.0163,
+#' 0.0172,
+#' 0.0177,
 #' 0.0155,
-#' 0.0175))
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
 #'
 #'part_to_part(data, part = SN, meas = Measure)
 
@@ -219,7 +239,10 @@ part_to_part = function(data, part, meas){
     group_by({{part}}) %>%
     summarize(avg_meas = mean({{meas}}), .groups = 'keep')
 
-  r_p = ((max(part_meas$avg_meas) - min(part_meas$avg_meas))/d)^2
+    if(a == 1) {
+      r_p = 0
+    }else {
+  r_p = ((max(part_meas$avg_meas) - min(part_meas$avg_meas))/d)^2}
 
   return(r_p)
 
@@ -240,26 +263,32 @@ part_to_part = function(data, part, meas){
 #' SN = c(
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
 #' 'SerialNumber_01',
 #' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01'),
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
 #'
 #' Operator = c(
 #' 'Operator_01',
 #' 'Operator_01',
 #' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02',
 #' 'Operator_02'),
 #'
 #'Measure = c(
-#' 0.0173,
-#' 0.0151,
-#' 0.0173,
-#' 0.0163,
+#' 0.0172,
+#' 0.0177,
 #' 0.0155,
-#' 0.0175))
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
 #'
 #'xbar_varcomps(data, part = SN, part = SN, operator = Operator, meas = Measure)
 

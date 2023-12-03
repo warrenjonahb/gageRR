@@ -26,26 +26,32 @@ data = data.frame(
 SN = c(
 'SerialNumber_01',
 'SerialNumber_01',
+'SerialNumber_02',
+'SerialNumber_02',
 'SerialNumber_01',
 'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_01'),
+'SerialNumber_02',
+'SerialNumber_02'),
 
 Operator = c(
 'Operator_01',
 'Operator_01',
 'Operator_01',
+'Operator_01',
+'Operator_02',
 'Operator_02',
 'Operator_02',
 'Operator_02'),
 
 Measure = c(
-0.0173,
-0.0151,
-0.0173,
-0.0163,
+0.0172,
+0.0177,
 0.0155,
-0.0175))
+0.0159,
+0.0174,
+0.0181,
+0.0152,
+0.0176))
 
 xbar_reproduce(data, part = SN, operator = Operator, meas = Measure)
 }
