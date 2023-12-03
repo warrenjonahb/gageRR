@@ -35,6 +35,8 @@ This is a basic example which takes the appropriately formatted data
 evaluation statistics. For more information please see the
 gageRR_vignette.
 
+Here, a sample dataset is created to demonstrate the gageRR functions:
+
 ``` r
 library(gageRR)
 data = data.frame(
@@ -67,21 +69,70 @@ Measure = c(
 0.0181,
 0.0152,
 0.0176))
+```
 
-grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
+Next we can calculate the sum of squares and ANOVA variance components:
+
+``` r
+ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+#> $reps
+#> [1] 2
+#> 
+#> $num_parts
+#> [1] 2
+#> 
+#> $num_opers
+#> [1] 2
+#> 
+#> $SS_oper_error
+#> [1] 5e-07
+#> 
+#> $SS_part_error
+#> [1] 4.805e-06
+#> 
+#> $SS_equip_error
+#> [1] 3.33e-06
+#> 
+#> $SS_op_part_error
+#> [1] 8e-08
+#> 
+#> $SS_total_error
+#> [1] 8.715e-06
+anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+#> $repeatability
+#> [1] 8.325e-07
+#> 
+#> $reproducibility
+#> [1] 1.05e-07
+#> 
+#> $total_grr
+#> [1] 9.375e-07
+#> 
+#> $part_to_part
+#> [1] 1.18125e-06
+#> 
+#> $total_var
+#> [1] 2.11875e-06
+```
+
+With these variance components we can then calculate the final gage
+evaluation statistics:
+
+``` r
+grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'anova')
 #> $VarianceComponents
-#>                      VarComp PercentContribution
-#> repeatability   6.873124e-07          0.34134037
-#> reproducibility 1.250005e-07          0.06207908
-#> total_grr       8.123129e-07          0.40341945
-#> part_to_part    1.201256e-06          0.59658055
-#> total_var       2.013569e-06          1.00000000
+#>                     VarComp PercentContribution
+#> repeatability   8.32500e-07          0.39292035
+#> reproducibility 1.05000e-07          0.04955752
+#> total_grr       9.37500e-07          0.44247788
+#> part_to_part    1.18125e-06          0.55752212
+#> total_var       2.11875e-06          1.00000000
 #> 
 #> $GageEval
 #>                       StdDev    StudyVar PercentStudyVar PercentTolerance
-#> repeatability   0.0008290430 0.004974258       0.5842434       0.12435646
-#> reproducibility 0.0003535541 0.002121325       0.2491567       0.05303312
-#> total_grr       0.0009012840 0.005407704       0.6351531       0.13519260
-#> part_to_part    0.0010960183 0.006576110       0.7723863       0.16440274
-#> total_var       0.0014190028 0.008514017       1.0000000       0.21285042
+#> repeatability   0.0009124144 0.005474486       0.6268336       0.13686216
+#> reproducibility 0.0003240370 0.001944222       0.2226152       0.04860556
+#> total_grr       0.0009682458 0.005809475       0.6651901       0.14523688
+#> part_to_part    0.0010868533 0.006521120       0.7466740       0.16302799
+#> total_var       0.0014555927 0.008733556       1.0000000       0.21833890
 ```

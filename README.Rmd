@@ -35,7 +35,9 @@ devtools::install_github("warrenjonahb/gageRR")
 
 This is a basic example which takes the appropriately formatted data (one row per operator and part measurement) and calculates summary gage evaluation statistics.  For more information please see the gageRR_vignette. 
 
-```{r example}
+Here, a sample dataset is created to demonstrate the gageRR functions:
+
+```{r data}
 library(gageRR)
 data = data.frame(
 SN = c(
@@ -68,6 +70,18 @@ Measure = c(
 0.0152,
 0.0176))
 
-grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
+```
+
+Next we can calculate the sum of squares and ANOVA variance components:
+
+```{r anova}
+ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+```
+
+With these variance components we can then calculate the final gage evaluation statistics:
+
+```{r anova_gage_eval}
+grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'anova')
 
 ```
