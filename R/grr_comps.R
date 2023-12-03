@@ -1,7 +1,7 @@
-#' GRR Calculations
+#' Gage R&R Evaluation
 #'
 #' @param data An R dataframe or tible.
-#' @param part The column in data specifying the unique ID of the part being measured
+#' @param part A column in the data specifying the unique ID of the part being measured
 #' @param operator A column in data specifying the operator for the recorded measurement
 #' @param meas A column in data where the measurement value is recorded.
 #' @param method A string specifying 'anova' or 'xbar_r'

@@ -1,5 +1,5 @@
 Package: gageRR
-Title: What the Package Does (One Line, Title Case)
+Title: Calculate Gage Repeatability and Reproducibility
 Version: 0.0.0.9000
 Authors@R: 
     person("Jonah", "Warren", , "warren.jonahb@gmail.com", role = c("aut", "cre"),
