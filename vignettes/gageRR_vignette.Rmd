@@ -26,9 +26,9 @@ The gageRR package provides two methods to analyze repeatability and reproducibi
 
 This vignette explains the use of the package and demonstrates typical workflows.
 
-## Reference
+## References
 
-Three references were used for the developement of this package:
+Three references were used for the development of this package:
 
 1. "MSA Reference Manual", 4th Edition, Chrysler Group LLC, Ford Motor Company, General Motors Corporation.
 
@@ -138,7 +138,7 @@ $$SS_{Part} = \sum_{j=1}^p(X_j - \overline{X})^2$$
 
 $$SS_{Total} = \sum_{i=1}^t \sum_{j=1}^p \sum_{m=1}^r(X_{ijm} - \overline{X})^2$$
 
-$$SS_{Total} = \sum_{i=1}^t \sum_{j=1}^p \sum_{m=1}^r(X_{ijm} - \overline{X}_{ij})^2$$
+$$SS_{Equipment} = \sum_{i=1}^t \sum_{j=1}^p \sum_{m=1}^r(X_{ijm} - \overline{X}_{ij})^2$$
 
 Where:
 
