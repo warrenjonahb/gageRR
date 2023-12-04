@@ -20,9 +20,9 @@ library(gageRR)
 
 ## Introduction
 
-Analyzing measurement system error is a critical component of the manufacturing process in numerous industries.  While a number of methods exist to analyze measurement error they can all be broadly described as repeatability and reproducibilty studies (or often referred to as Gage R&R studies).  Industries can then provide guidelines or limitations on the amount of error that is acceptable for a given product feature based on the outcome of a Gage R&R study.
+Analyzing measurement system error is a critical component of the manufacturing process in numerous industries.  While a number of methods exist to analyze measurement error they can all be broadly described as repeatability and reproducibilty studies (often referred to as Gage R&R studies).  Industries can then provide guidelines or limitations on the amount of error that is acceptable for a given product feature based on the outcome of a Gage R&R study.
 
-The gageRR package provides two methods to analyze repeatability and reproducibility: Analysis of Variance (ANOVA) method and Average and Range method.  These methods require a balanced study, that is the same number of repetitions and for each operator and part combination. 
+The gageRR package provides two methods to analyze repeatability and reproducibility: Analysis of Variance (ANOVA) method and Average and Range method.  These methods require a balanced study, that is the same number of repetitions and each operator and part combination. 
 
 This vignette explains the use of the package and demonstrates typical workflows.
 
@@ -57,7 +57,7 @@ head(data)
 
 ## 2. Average and Range Method
 
-The Average and Range Method allows for the calculation of repeatability and reproducibility but will does not account for the interaction between the part and operator. Each variance compnent (VARCOMP) can be defined as follows:
+The Average and Range Method allows for the calculation of repeatability and reproducibility but does not account for the interaction between the part and operator. Each variance component (VARCOMP) can be defined as follows:
 
 ### Repeatability 
 
@@ -153,9 +153,9 @@ The final sum of squares (Operator * Part) is calculated as:
 $$SS_{Operator * Part} = SS
 _{Total} - (SS_{Operator} + SS_{Part} + SS_{Equipment})$$
 
-### gageRR Sum of Squares Funciton
+### gageRR Sum of Squares Function
 
-*With the gageRR package we can caclulate the sum of squares with the following command:*
+*With the gageRR package we can calculate the sum of squares with the following command:*
 
 ```{r ss}
 ss_calcs(data, part = SN, operator = Operator, meas = Measure)
@@ -209,13 +209,13 @@ anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
 
 ## Gage Evaluation
 
-Regardless of the method used above (Average and Range of ANOVA) we can now calculate the following gage statistics:
+Regardless of the method used above (Average and Range of ANOVA), we can now calculate the following gage statistics:
 
 Percent Contribution - Percentage of variation from each VARCOMP with respect to the total variation.
 
-Standard Deviation - The square root of the VARCOMP
+Standard Deviation - The square root of the VARCOMP.
 
-Study Variation - Standard deviation for each source multiplied by 6 (where 6s represents the process standard deviation)
+Study Variation - Standard deviation for each source multiplied by 6 (where 6s represents the process standard deviation).
 
 Percent Tolerance - Percentage of the tolerance band (if provided) that is taken up by the study variation for each component.  
 
