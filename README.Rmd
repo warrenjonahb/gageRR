@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 Analyzing measurement system error is a critical component of the manufacturing process in numerous industries.  While a number of methods exist to analyze measurement error they can all be broadly described as repeatability and reproducibilty studies (or often referred to as Gage R&R studies).  Industries can then provide guidelines or limitations on the amount of error that is acceptable for a given product feature based on the outcome of a Gage R&R study.
 
-The gageRR package provides two methods to analyze repeatability and reproducibility: Analysis of Variance (ANOVA) method and Average and Range method.  These methods require a balanced study, that is the same number of repetitions and for each operator and part combination. 
+The gageRR package provides two methods to analyze repeatability and reproducibility: Analysis of Variance (ANOVA) method and Average and Range method.  These methods require a balanced study, that is the same number of repetitions for each operator and part combination. 
 
 ## Installation
 

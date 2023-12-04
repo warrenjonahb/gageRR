@@ -16,7 +16,7 @@ on the outcome of a Gage R&R study.
 The gageRR package provides two methods to analyze repeatability and
 reproducibility: Analysis of Variance (ANOVA) method and Average and
 Range method. These methods require a balanced study, that is the same
-number of repetitions and for each operator and part combination.
+number of repetitions for each operator and part combination.
 
 ## Installation
 
