@@ -1,6 +1,6 @@
 Package: gageRR
 Title: Calculate Gage Repeatability and Reproducibility
-Version: 0.0.0.9000
+Version: 1.0.0.0000
 Authors@R: 
     person("Jonah", "Warren", , "warren.jonahb@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
