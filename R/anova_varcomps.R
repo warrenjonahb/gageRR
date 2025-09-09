@@ -187,7 +187,7 @@ anova_var_calcs = function(data, part, operator, meas)  {
     p_val = NULL
   }else {
   F_stat = MS_oper_part/(MS_equip)
-  p_val = pf(F_stat[[1]],
+  p_val = stats::pf(F_stat[[1]],
              df1 = as.integer((num_opers - 1)*(num_parts - 1)),
              df2 = as.integer(num_parts * num_opers * (reps-1)),
             lower.tail = FALSE    )}
