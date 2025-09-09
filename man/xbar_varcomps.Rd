@@ -53,5 +53,5 @@ Measure = c(
 0.0152,
 0.0176))
 
-xbar_varcomps(data, part = SN, part = SN, operator = Operator, meas = Measure)
+xbar_varcomps(data, part = SN, operator = Operator, meas = Measure)
 }
