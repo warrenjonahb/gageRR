@@ -12,8 +12,6 @@ part_to_part(data, part, meas)
 \item{part}{The column in data specifying the unique ID of the part being measured}
 
 \item{meas}{A column in data where the measurement value is recorded.}
-
-\item{operator}{A column in data specifying the operator for the recorded measurement}
 }
 \value{
 A number. The measure of part to part variation for the given data.
