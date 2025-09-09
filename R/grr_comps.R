@@ -44,7 +44,8 @@
 #' 0.0152,
 #' 0.0176))
 #'
-#'grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
+#'grr_calc(data, part = SN, operator = Operator,
+#'meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
 
 grr_calc = function(data, part, operator, meas, LSL = NULL, USL = NULL, method = 'anova') {
 
