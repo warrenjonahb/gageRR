@@ -182,7 +182,6 @@ xbar_reproduce = function(data, part, operator, meas){
 #'
 #' @param data An R dataframe or tibble.
 #' @param part The column in data specifying the unique ID of the part being measured
-#' @param operator A column in data specifying the operator for the recorded measurement
 #' @param meas A column in data where the measurement value is recorded.
 #'
 #' @return A number. The measure of part to part variation for the given data.
