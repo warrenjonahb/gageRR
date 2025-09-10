@@ -222,6 +222,22 @@ anova_var_calcs = function(data, part, operator, meas)  {
   part_to_part = var_part
   total_var = total_grr + part_to_part
 
+  # Create a data frame for plotting
+  plot_data = data.frame(
+    Category = c("Repeatability", "Reproducibility", "Part-to-Part"),
+    Value = c(repeatability, reproducibility, part_to_part)
+  )
+
+  # Generate the bar plot
+  bar_plot = ggplot2::ggplot(plot_data, ggplot2::aes(x = Category, y = Value, fill = Category)) +
+    ggplot2::geom_bar(stat = "identity") +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(title = "Variance Components", x = "Category", y = "Value") +
+    ggplot2::scale_fill_manual(values = c("Repeatability" = "blue", "Reproducibility" = "green", "Part-to-Part" = "red"))
+
+  # Print the plot
+  print(bar_plot)
+
   return(list(repeatability = as.double(repeatability),
               reproducibility = as.double(reproducibility),
               total_grr = as.double(total_grr),
