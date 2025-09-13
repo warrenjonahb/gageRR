@@ -43,7 +43,7 @@ d2_integral <- function(m, rel.tol = .Machine$double.eps^0.5) {
 #' @rdname d2_integral
 #' @export
 c4 <- function(n) {
-  if (n < 2) stop("n must be >= 2")
+  if (n < 2) {n=2}
   sqrt(2 / (n - 1)) * gamma(n / 2) / gamma((n - 1) / 2)
 }
 
