@@ -150,6 +150,11 @@ xbar_reproduce = function(data, part, operator, meas){
     count() %>%
     as.integer()
 
+  #Insert code here for stop. If m1 =1 then repeatability is 0.
+  if (m1 == 1) {
+    reproducibility = 0
+  } else {
+
   d = d2_minitab_df(m = m1, g = 1)
 
   xbar_i = data %>%
@@ -167,7 +172,7 @@ xbar_reproduce = function(data, part, operator, meas){
     reproducibility = (x_diff *1/d)^2 - (repeatability^2/(a*r))
   }else{
     reproducibility = 0
-  }
+  }}
   return(reproducibility)
 
 }
