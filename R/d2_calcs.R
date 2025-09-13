@@ -1,64 +1,56 @@
-# d2_calcs.R
-
-#' Expected Range Constant d2
+#' @title d2 and c4 Constants for Gage R&R
 #'
-#' Computes the expected range constant \eqn{d_2(m)} used in control chart
-#' calculations, following the AIAG approach.
-#' This is the expected value of the range of \eqn{m} independent standard
-#' normal samples.
+#' @description
+#' Functions to calculate the \eqn{d_2} constant (expected range of a normal subgroup),
+#' the chi-square bias correction factor \eqn{c_4}, and a Minitab-style adjusted
+#' \eqn{d_2} that incorporates the number of subgroups.
 #'
-#' @param m Integer. Subgroup size (sample size per subgroup). Must be >= 2.
-#' @param method Character. Approximation method. One of:
-#'   - `"integral"`: Numerical integration of the exact expected range.
-#'   - `"aiag"`: Chi-squared approximation (used in AIAG tables).
+#' @details
+#' - \code{d2_integral(m)} computes the exact \eqn{d_2(m)} by numerical integration.
+#' - \code{c4(n)} computes the chi-square bias correction factor \eqn{c_4(n)}.
+#' - \code{d2_minitab_df(m, g)} computes a finite-sample adjusted constant
+#'   \eqn{d_2^{adj}(m,g) = d_2(m) / c_4(df)}, with
+#'   \eqn{df = g \times (m-1)} degrees of freedom, consistent with Minitab/AIAG tables.
 #'
-#' @return Numeric. The constant \eqn{d_2(m)}.
+#' @param m Integer. Subgroup size (must be \eqn{\ge 2}).
+#' @param g Integer. Number of subgroups (must be \eqn{\ge 1}).
+#' @param n Integer. Degrees of freedom argument for \code{c4}.
+#' @param rel.tol Relative tolerance for integration (passed to \code{integrate()}).
+#'
+#' @return
+#' - \code{d2_integral()} returns a numeric scalar (expected range for subgroup size \code{m}).
+#' - \code{c4()} returns a numeric scalar (bias correction factor).
+#' - \code{d2_minitab_df()} returns a numeric scalar (adjusted constant).
+#'
 #' @examples
-#' d2(5, method = "integral")
-#' d2(5, method = "aiag")
+#' # Exact d2 for subgroup size 5
+#' d2_integral(5)
 #'
+#' # Chi-square bias correction for df = 8
+#' c4(8)
+#'
+#' # Minitab-style adjusted constant for m = 5, g = 2
+#' d2_minitab_df(5, 2)
+#'
+#' @seealso \code{\link{integrate}}, \code{\link{gamma}}
 #' @export
-d2 <- function(m, method = c("integral", "aiag")) {
-  method <- match.arg(method)
-
-  if (m < 2) stop("Subgroup size m must be at least 2.")
-
-  if (method == "integral") {
-    return(d2_integral(m))
-  } else if (method == "aiag") {
-    return(d2_aiag(m))
-  }
+d2_integral <- function(m, rel.tol = .Machine$double.eps^0.5) {
+  if (m < 2) stop("m must be >= 2")
+  integrand <- function(x) 1 - (1 - pnorm(x))^m - pnorm(x)^m
+  integrate(integrand, lower = -Inf, upper = Inf, rel.tol = rel.tol)$value
 }
 
-#' d2 via Numerical Integration
-#'
-#' Internal function: computes \eqn{d_2(m)} using the exact integral definition.
-#'
-#' @param m Integer. Subgroup size.
-#' @return Numeric. Expected range constant.
-#' @keywords internal
-d2_integral <- function(m) {
-  integrand <- function(x) {
-    m * (pnorm(x))^(m - 1) * dnorm(x)
-  }
-  upper <- integrate(integrand, -Inf, Inf)$value
-  return(2 * upper)  # symmetry
+#' @rdname d2_integral
+#' @export
+c4 <- function(n) {
+  if (n < 2) stop("n must be >= 2")
+  sqrt(2 / (n - 1)) * gamma(n / 2) / gamma((n - 1) / 2)
 }
 
-#' d2 via AIAG Chi-Squared Approximation
-#'
-#' Internal function: computes \eqn{d_2(m)} using the AIAG chi-squared approximation.
-#' This matches published AIAG d2 tables for finite subgroup sizes.
-#'
-#' @param m Integer. Subgroup size.
-#' @return Numeric. Approximated expected range constant.
-#' @keywords internal
-d2_aiag <- function(m) {
-  if (m < 2) stop("Subgroup size m must be at least 2.")
-
-  g <- m - 1  # degrees of freedom for chi-squared approximation
-  cd <- sqrt(2) * gamma((m + 1) / 2) / gamma(m / 2)
-  d2_value <- cd * sqrt(2 * g) * gamma(g / 2) / gamma((g - 1) / 2)
-
-  return(d2_value)
+#' @rdname d2_integral
+#' @export
+d2_minitab_df <- function(m, g) {
+  d2 <- d2_integral(m)
+  df <- g * (m - 1)
+  d2 / c4(df)
 }
