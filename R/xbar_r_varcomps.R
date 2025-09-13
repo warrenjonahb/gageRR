@@ -68,10 +68,7 @@ xbar_repeat = function(data, part, operator, meas){
 
   g1 = as.integer(a*k)
 
-  d = d_table %>%
-    filter(g == g1 & m == reps) %>%
-    select(d2) %>%
-    as.double()
+  d = d2_minitab_df(m = reps, g = g1)
 
   xbar_rep = data %>%
     select({{part}}, {{operator}}, {{meas}}) %>%
@@ -153,10 +150,7 @@ xbar_reproduce = function(data, part, operator, meas){
     count() %>%
     as.integer()
 
-  d = d_table %>%
-    filter(g == 1 & m == m1) %>%
-    select(d2) %>%
-    as.double()
+  d = d2_minitab_df(m = m1, g = 1)
 
   xbar_i = data %>%
     select({{operator}}, {{meas}}) %>%
@@ -229,10 +223,7 @@ part_to_part = function(data, part, meas){
     count() %>%
     as.integer()
 
-  d = d_table %>%
-    filter(g == 1 & m == a) %>%
-    select(d2) %>%
-    as.double()
+  d = d2_minitab_df(m = a, g = 1)
 
   part_meas = data %>%
     group_by({{part}}) %>%
