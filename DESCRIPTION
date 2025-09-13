@@ -1,6 +1,6 @@
 Package: gageRR
 Title: Calculate Gage Repeatability and Reproducibility
-Version: 1.0.0.0000
+Version: 0.1.0
 Authors@R: 
     person("Jonah", "Warren", , "warren.jonahb@gmail.com", role = c("aut", "cre"),)
 Description: Procedures for calculating variance components, study variation, percent study variation, and percent tolerance for gage repeatability and reproducibility study.  Methods included are ANOVA and Average / Ragne methods (XBar and R).  Requires balanced study. 
