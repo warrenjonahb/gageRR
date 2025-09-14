@@ -222,9 +222,9 @@ anova_var_calcs = function(data, part, operator, meas)  {
   part_to_part = var_part
   total_var = total_grr + part_to_part
 
-  return(list(repeatability = as.double(repeatability),
+  return(list(total_grr = as.double(total_grr),
+              repeatability = as.double(repeatability),
               reproducibility = as.double(reproducibility),
-              total_grr = as.double(total_grr),
               part_to_part = as.double(part_to_part),
               total_var = as.double(total_var)))
 }
