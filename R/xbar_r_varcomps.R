@@ -296,9 +296,9 @@ xbar_varcomps = function(data, part, operator, meas)  {
   total_var = total_grr + part_to_part
 
   return(list(
+    total_grr = total_grr,
     repeatability = repeatability,
     reproducibility = reproducibility,
-    total_grr = total_grr,
     part_to_part = part_to_part,
     total_var = total_var
   ))
