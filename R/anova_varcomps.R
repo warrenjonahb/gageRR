@@ -187,9 +187,6 @@ anova_var_calcs = function(data, part, operator, meas)  {
     p_val = NULL
   }else {
 
-  anova_stats = aov({{meas}} ~ {{operator}} * {{part}},data = {{data}})
-  anova_table = summary(anova_table)
-
   F_stat = MS_oper_part/(MS_equip)
   p_val = stats::pf(F_stat[[1]],
              df1 = as.integer((num_opers - 1)*(num_parts - 1)),
@@ -233,3 +230,62 @@ anova_var_calcs = function(data, part, operator, meas)  {
               part_to_part = as.double(part_to_part),
               total_var = as.double(total_var)))
 }
+
+#' ANOVA Table Calculation
+#'
+#' @param data An R dataframe or tibble.
+#' @param part A column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
+#'
+#' @return An anova table of meas ~ operator * part
+#' @export
+#'
+#' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0172,
+#' 0.0177,
+#' 0.0155,
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
+#'
+#'anova_table(data, part = SN, operator = Operator, meas = Measure)
+
+anova_table = function(data, part, operator, meas)  {
+
+  formula = reformulate(
+    termlabels = paste(as.character(substitute(operator)),
+                       as.character(substitute(part)),
+                       sep = " * "),
+    response = as.character(substitute(meas))
+  )
+
+  anova_stats = aov(formula, data = data)
+  anova_table = summary(anova_stats)
+
+  return(anova_table)
+  }
