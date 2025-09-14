@@ -45,9 +45,9 @@
 
 xbar_repeat = function(data, part, operator, meas){
   reps = data %>%
-    select({{part}}, {{operator}}) %>%
-    group_by({{part}}, {{operator}}) %>%
-    summarize(rep = n(), .groups = 'keep')
+    dplyr::select({{part}}, {{operator}}) %>%
+    dplyr::group_by({{part}}, {{operator}}) %>%
+    dplyr::summarize(rep = n(), .groups = 'keep')
 
   #Small correction here need equal number of reps across each operator/part combo
   if (length(unique(reps$rep)) != 1) {
@@ -57,12 +57,12 @@ xbar_repeat = function(data, part, operator, meas){
   reps = unique(reps$rep)
 
   a = data %>%
-    select({{part}}) %>%
+    dplyr::select({{part}}) %>%
     distinct() %>%
     count()
 
   k = data %>%
-    select({{operator}}) %>%
+    dplyr::select({{operator}}) %>%
     distinct() %>%
     count()
 
@@ -71,9 +71,9 @@ xbar_repeat = function(data, part, operator, meas){
   d = d2_minitab_df(m = reps, g = g1)
 
   xbar_rep = data %>%
-    select({{part}}, {{operator}}, {{meas}}) %>%
-    group_by({{part}}, {{operator}}) %>%
-    summarize(repeatbility = (max({{meas}})-min({{meas}}))/(a*k), .groups = 'keep')
+    dplyr::select({{part}}, {{operator}}, {{meas}}) %>%
+    dplyr::group_by({{part}}, {{operator}}) %>%
+    dplyr::summarize(repeatbility = (max({{meas}})-min({{meas}}))/(a*k), .groups = 'keep')
 
   repeatability = (sum(xbar_rep$repeatbility)/d)^2 #Squaring to return varComp not SD
 
@@ -128,9 +128,9 @@ xbar_repeat = function(data, part, operator, meas){
 xbar_reproduce = function(data, part, operator, meas){
 
   reps = data %>%
-    select({{part}}, {{operator}}) %>%
-    group_by({{part}}, {{operator}}) %>%
-    summarize(rep = n(), .groups = 'keep')
+    dplyr::select({{part}}, {{operator}}) %>%
+    dplyr::group_by({{part}}, {{operator}}) %>%
+    dplyr::summarize(rep = n(), .groups = 'keep')
 
   if (length(unique(reps$rep)) != 1) {
     stop("Each part must have an equal number of replicates")
@@ -139,13 +139,13 @@ xbar_reproduce = function(data, part, operator, meas){
   r = unique(reps$rep)
 
   a = data %>%
-    select({{part}}) %>%
+    dplyr::select({{part}}) %>%
     distinct() %>%
     count() %>%
     as.integer()
 
   m1 = data %>%
-    select({{operator}}) %>%
+    dplyr::select({{operator}}) %>%
     distinct() %>%
     count() %>%
     as.integer()
@@ -158,9 +158,9 @@ xbar_reproduce = function(data, part, operator, meas){
   d = d2_minitab_df(m = m1, g = 1)
 
   xbar_i = data %>%
-    select({{operator}}, {{meas}}) %>%
-    group_by({{operator}}) %>%
-    summarize(op_avg = mean({{meas}}), .groups = 'keep')
+    dplyr::select({{operator}}, {{meas}}) %>%
+    dplyr::group_by({{operator}}) %>%
+    dplyr::summarize(op_avg = mean({{meas}}), .groups = 'keep')
 
   x_diff = max(xbar_i$op_avg) - min(xbar_i$op_avg)
 
@@ -223,7 +223,7 @@ xbar_reproduce = function(data, part, operator, meas){
 part_to_part = function(data, part, meas){
 
   a = data %>%
-    select({{part}}) %>%
+    dplyr::select({{part}}) %>%
     distinct() %>%
     count() %>%
     as.integer()
@@ -231,8 +231,8 @@ part_to_part = function(data, part, meas){
   d = d2_minitab_df(m = a, g = 1)
 
   part_meas = data %>%
-    group_by({{part}}) %>%
-    summarize(avg_meas = mean({{meas}}), .groups = 'keep')
+    dplyr::group_by({{part}}) %>%
+    dplyr::summarize(avg_meas = mean({{meas}}), .groups = 'keep')
 
     if(a == 1) {
       r_p = 0
