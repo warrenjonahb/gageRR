@@ -186,6 +186,10 @@ anova_var_calcs = function(data, part, operator, meas)  {
   if(num_parts == 1 | num_opers == 1){
     p_val = NULL
   }else {
+
+  anova_stats = aov({{meas}} ~ {{operator}} * {{part}},data = {{data}})
+  anova_table = summary(anova_table)
+
   F_stat = MS_oper_part/(MS_equip)
   p_val = stats::pf(F_stat[[1]],
              df1 = as.integer((num_opers - 1)*(num_parts - 1)),
@@ -222,7 +226,8 @@ anova_var_calcs = function(data, part, operator, meas)  {
   part_to_part = var_part
   total_var = total_grr + part_to_part
 
-  return(list(total_grr = as.double(total_grr),
+  return(list(anova_table = anova_table,
+              total_grr = as.double(total_grr),
               repeatability = as.double(repeatability),
               reproducibility = as.double(reproducibility),
               part_to_part = as.double(part_to_part),
