@@ -51,6 +51,7 @@ grr_calc = function(data, part, operator, meas, LSL = NULL, USL = NULL, method =
 
   if(method == 'anova') {
     varComps = anova_var_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+    anovaTable = anova_table(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
   } else if (method == 'xbar_r') {
     varComps = xbar_varcomps(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
   } else {
@@ -83,6 +84,9 @@ grr_calc = function(data, part, operator, meas, LSL = NULL, USL = NULL, method =
       GageEval['PercentTolerance'] = GageEval['StudyVar'] / tolerance_band
 
     }
-
-return(list(VarianceComponents = VarianceComponents, GageEval = GageEval))
+if(method == 'anova') {
+return(list(anovaTable = annovaTable, VarianceComponents = VarianceComponents, GageEval = GageEval))
+}else{
+  return(list(VarianceComponents = VarianceComponents, GageEval = GageEval))
+}
 }
