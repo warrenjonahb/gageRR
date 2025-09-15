@@ -2,54 +2,28 @@
 % Please edit documentation in R/xbar_r_varcomps.R
 \name{part_to_part}
 \alias{part_to_part}
-\title{Average and Range Method Part to Part Variance Calculation}
+\title{Average and Range Method Part-to-Part Variance Calculation}
 \usage{
 part_to_part(data, part, meas)
 }
 \arguments{
 \item{data}{An R dataframe or tibble.}
 
-\item{part}{The column in data specifying the unique ID of the part being measured}
+\item{part}{Column name (unquoted) specifying the unique ID of the part being measured.}
 
-\item{meas}{A column in data where the measurement value is recorded.}
+\item{meas}{Column name (unquoted) where the measurement value is recorded.}
 }
 \value{
-A number. The measure of part to part variation for the given data.
+A number. The measure of part-to-part variation for the given data.
 }
 \description{
-Average and Range Method Part to Part Variance Calculation
+Average and Range Method Part-to-Part Variance Calculation
 }
 \examples{
-data = data.frame(
-SN = c(
-'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_02',
-'SerialNumber_02',
-'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_02',
-'SerialNumber_02'),
-
-Operator = c(
-'Operator_01',
-'Operator_01',
-'Operator_01',
-'Operator_01',
-'Operator_02',
-'Operator_02',
-'Operator_02',
-'Operator_02'),
-
-Measure = c(
-0.0172,
-0.0177,
-0.0155,
-0.0159,
-0.0174,
-0.0181,
-0.0152,
-0.0176))
-
-part_to_part(data, part = SN, meas = Measure)
+data <- data.frame(
+  SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+  Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+  Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+)
+part_to_part(data, part = 'SN', meas = 'Measure')
 }
