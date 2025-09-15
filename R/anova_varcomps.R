@@ -223,8 +223,7 @@ anova_var_calcs = function(data, part, operator, meas)  {
   part_to_part = var_part
   total_var = total_grr + part_to_part
 
-  return(list(anova_table = anova_table,
-              total_grr = as.double(total_grr),
+  return(list(total_grr = as.double(total_grr),
               repeatability = as.double(repeatability),
               reproducibility = as.double(reproducibility),
               part_to_part = as.double(part_to_part),
@@ -238,7 +237,7 @@ anova_var_calcs = function(data, part, operator, meas)  {
 #' @param operator A column in data specifying the operator for the recorded measurement
 #' @param meas A column in data where the measurement value is recorded.
 #'
-#' @return An anova table of meas ~ operator * part
+#' @return An anova table of meas ~ operator x part
 #' @export
 #'
 #' @examples
@@ -276,15 +275,18 @@ anova_var_calcs = function(data, part, operator, meas)  {
 #'anova_table(data, part = SN, operator = Operator, meas = Measure)
 
 anova_table = function(data, part, operator, meas)  {
+  part_chr     <- gsub("[{}]", "", deparse(substitute(part)))
+  operator_chr <- gsub("[{}]", "", deparse(substitute(operator)))
+  meas_chr     <- gsub("[{}]", "", deparse(substitute(meas)))
 
-  formula = reformulate(
-    termlabels = paste(as.character(substitute(operator)),
-                       as.character(substitute(part)),
-                       sep = " * "),
-    response = as.character(substitute(meas))
-  )
+  # Build the formula string
+  form_text <- sprintf("%s ~ %s * %s", meas_chr, operator_chr, part_chr)
 
-  anova_stats = aov(formula, data = data)
+  # Create formula
+  form <- as.formula(form_text, env = parent.frame())
+
+  # Run ANOVA
+  anova_stats <- aov(form, data = data)
   anova_table = summary(anova_stats)
 
   return(anova_table)
