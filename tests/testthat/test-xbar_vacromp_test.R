@@ -24,11 +24,11 @@ test_that("multiplication works", {
       3,
       3))
 
-  expect_equal(xbar_repeat(data, part = SN, operator = Operator, meas = Measure), 0)
-  expect_equal(xbar_reproduce(data, part = SN, operator = Operator, meas = Measure), 0)
-  expect_equal(round(part_to_part(data, part = SN, meas = Measure),3),2)
+  expect_equal(xbar_repeat(data, part = 'SN', operator = 'Operator', meas = 'Measure'), 0)
+  expect_equal(xbar_reproduce(data, part = 'SN', operator = 'Operator', meas = 'Measure'), 0)
+  expect_equal(round(part_to_part(data, part = 'SN', meas = 'Measure'),3),2)
 
-  xbar_varcompTest = xbar_varcomps(data, part = SN, operator = Operator, meas = Measure)
+  xbar_varcompTest = xbar_varcomps(data, part = 'SN', operator = 'Operator', meas = 'Measure')
   expect_equal(xbar_varcompTest$repeatability,0)
   expect_equal(xbar_varcompTest$reproducibility,0)
   expect_equal(xbar_varcompTest$total_grr,0)
