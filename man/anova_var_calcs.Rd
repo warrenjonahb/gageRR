@@ -53,5 +53,5 @@ Measure = c(
 0.0152,
 0.0176))
 
-anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 }
