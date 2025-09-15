@@ -25,7 +25,7 @@ test_that("multiplication works", {
       3,
       3))
 
-  singleOperTest_SS = ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+  singleOperTest_SS = ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
   expect_equal(singleOperTest_SS$reps, 3)
   expect_equal(singleOperTest_SS$num_parts, 2)
   expect_equal(singleOperTest_SS$num_opers, 1)
@@ -34,7 +34,7 @@ test_that("multiplication works", {
   expect_equal(singleOperTest_SS$SS_op_part_error, 0)
   expect_equal(singleOperTest_SS$SS_total_error, 6)
 
-  singleOperTest_anova = anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+  singleOperTest_anova = anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
   expect_equal(singleOperTest_anova$repeatability,0)
   expect_equal(singleOperTest_anova$reproducibility,0)
   expect_equal(singleOperTest_anova$total_grr,0)
