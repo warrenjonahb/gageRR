@@ -30,7 +30,7 @@ test_that("multiplication works", {
       0.0152,
       0.0176))
 
-  grr_anova_check = grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = .150, USL = .180, method = 'anova')
+  grr_anova_check = grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = .150, USL = .180, method = 'anova')
 
   expect_equal(round(grr_anova_check$VarianceComponents["repeatability", "PercentContribution"],3), .393)
   expect_equal(round(grr_anova_check$VarianceComponents["reproducibility", "PercentContribution"],3), .050)
@@ -44,7 +44,7 @@ test_that("multiplication works", {
   expect_equal(round(grr_anova_check$GageEval["part_to_part", "PercentTolerance"],3), .217)
   expect_equal(round(grr_anova_check$GageEval["total_var", "PercentTolerance"],3), .291)
 
-  grr_xbar_check = grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = .150, USL = .180, method = 'xbar_r')
+  grr_xbar_check = grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = .150, USL = .180, method = 'xbar_r')
 
   expect_equal(round(grr_xbar_check$VarianceComponents["repeatability", "PercentContribution"],3), .335)
   expect_equal(round(grr_xbar_check$VarianceComponents["reproducibility", "PercentContribution"],3), .063)
