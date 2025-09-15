@@ -103,11 +103,11 @@ $d_2$ - See Appendix C Table C1 (Ref 1) where g = 1 and m = number of parts.
 *Using the data object inspected above we can make these calculations as follows*
 
 ```{r xbar}
-xbar_repeat(data, part = SN, operator = Operator, meas = Measure)
+xbar_repeat(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
-xbar_reproduce(data, part = SN, operator = Operator, meas = Measure)
+xbar_reproduce(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
-part_to_part(data, part = SN, meas = Measure )
+part_to_part(data, part = 'SN', meas = 'Measure' )
 ```
 
 ### Total Gage R&R / Total Variation
@@ -125,7 +125,7 @@ $$ \sqrt{Total Gage RR^2 + PartToPart^2}$$
 *A summary list of these Average and Range VARCOMPS can be found with the following command:*
 
 ```{r xbar_varcomps}
-xbar_varcomps(data, part = SN, operator = Operator, meas = Measure)
+xbar_varcomps(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 ```
 
 ## 3. ANOVA Method
@@ -158,7 +158,7 @@ _{Total} - (SS_{Operator} + SS_{Part} + SS_{Equipment})$$
 *With the gageRR package we can calculate the sum of squares with the following command:*
 
 ```{r ss}
-ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 ```
 
 Mean square values can now be found as:
@@ -204,7 +204,7 @@ $$\sigma^2_{Total-VAR} =\sigma^2_{Total-gageRR} +  \sigma^2_{Part-to-Part}$$
 *With the gageRR package we can calculate the ANOVA VARCOMPs with the following command:*
 
 ```{r anova_varcomps}
-anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 ```
 
 ## Gage Evaluation
@@ -224,6 +224,6 @@ Percent Tolerance - Percentage of the tolerance band (if provided) that is taken
 *With the gageRR package we can produce a list of the gage evaluation tables as two dataframes with the following command:*
 
 ```{r gage_eval}
-grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = NULL, USL = .04, method = 'anova')
+grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = NULL, USL = .04, method = 'anova')
 ```
 
