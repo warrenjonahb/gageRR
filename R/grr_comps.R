@@ -85,7 +85,7 @@ grr_calc = function(data, part, operator, meas, LSL = NULL, USL = NULL, method =
 
     }
 if(method == 'anova') {
-return(list(anovaTable = annovaTable, VarianceComponents = VarianceComponents, GageEval = GageEval))
+return(list(VarianceComponents = VarianceComponents, GageEval = GageEval))
 }else{
   return(list(VarianceComponents = VarianceComponents, GageEval = GageEval))
 }
