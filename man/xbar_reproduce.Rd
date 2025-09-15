@@ -9,11 +9,11 @@ xbar_reproduce(data, part, operator, meas)
 \arguments{
 \item{data}{An R dataframe or tibble.}
 
-\item{part}{The column in data specifying the unique ID of the part being measured}
+\item{part}{Column name (unquoted) specifying the unique ID of the part being measured.}
 
-\item{operator}{A column in data specifying the operator for the recorded measurement}
+\item{operator}{Column name (unquoted) specifying the operator for the recorded measurement.}
 
-\item{meas}{A column in data where the measurement value is recorded.}
+\item{meas}{Column name (unquoted) where the measurement value is recorded.}
 }
 \value{
 A number. The measure of reproducibility for the given data.
@@ -22,36 +22,10 @@ A number. The measure of reproducibility for the given data.
 Average and Range Method Reproducibility Calculation
 }
 \examples{
-data = data.frame(
-SN = c(
-'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_02',
-'SerialNumber_02',
-'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_02',
-'SerialNumber_02'),
-
-Operator = c(
-'Operator_01',
-'Operator_01',
-'Operator_01',
-'Operator_01',
-'Operator_02',
-'Operator_02',
-'Operator_02',
-'Operator_02'),
-
-Measure = c(
-0.0172,
-0.0177,
-0.0155,
-0.0159,
-0.0174,
-0.0181,
-0.0152,
-0.0176))
-
-xbar_reproduce(data, part = SN, operator = Operator, meas = Measure)
+data <- data.frame(
+  SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+  Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+  Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+)
+xbar_reproduce(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 }
