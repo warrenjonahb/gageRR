@@ -104,18 +104,20 @@ xbar_reproduce <- function(data, part, operator, meas) {
 #' part_to_part(data, part = 'SN', meas = 'Measure')
 part_to_part <- function(data, part, meas) {
   a <- length(unique(data[[part]]))
-  d <- d2_minitab_df(m = a, g = 1)
-
-  part_meas <- aggregate(data[[meas]],
-                         by = list(data[[part]]),
-                         FUN = mean)
-
-  if (a == 1) {
-    r_p <- 0
+  if (a < 2) {
+    return(0)
   } else {
+    part_meas <- aggregate(data[[meas]],
+                           by = list(data[[part]]),
+                           FUN = mean)
+
+    d <- d2_minitab_df(m = a, g = 1)
+
     r_p <- ((max(part_meas$x) - min(part_meas$x)) / d)^2
+
+    return(r_p)
   }
-  return(r_p)
+
 }
 
 
