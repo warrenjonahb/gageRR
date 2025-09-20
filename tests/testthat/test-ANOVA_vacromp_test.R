@@ -42,3 +42,23 @@ test_that("multiplication works", {
   expect_equal(singleOperTest_anova$total_var,2)
 
 })
+
+test_that("ss_calcs requires at least two replicates per part/operator", {
+  data <- data.frame(
+    SN = c(
+      "SerialNumber_01",
+      "SerialNumber_02"
+    ),
+    Operator = c(
+      "Operator_01",
+      "Operator_02"
+    ),
+    Measure = c(1, 2)
+  )
+
+  expect_error(
+    ss_calcs(data, part = "SN", operator = "Operator", meas = "Measure"),
+    "At least two replicates per part/operator are required.",
+    fixed = TRUE
+  )
+})
