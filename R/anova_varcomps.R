@@ -53,6 +53,10 @@ ss_calcs <- function(data, part, operator, meas) {
   }
   r <- unique(reps$x)
 
+  if (r < 2) {
+    stop("At least two replicates per part/operator are required.", call. = FALSE)
+  }
+
   p <- length(unique(data[[part]]))
   t <- length(unique(data[[operator]]))
 
