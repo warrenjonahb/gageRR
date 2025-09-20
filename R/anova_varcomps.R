@@ -1,9 +1,12 @@
 #' ANOVA Sum of Squares Calculations
 #'
-#' @param data An R dataframe or tibble.
-#' @param part A column in data specifying the unique ID of the part being measured
-#' @param operator A column in data specifying the operator for the recorded measurement
-#' @param meas A column in data where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part A column in data specifying the unique ID of the part being measured. The column should be a character or
+#'   factor vector.
+#' @param operator A column in data specifying the operator for the recorded measurement. The column should be a
+#'   character or factor vector.
+#' @param meas A column in data where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
 #' @return A list of numeric values for the sum of squares error for operator, part, equipment, operator and part interaction, and total error.
 #' @export
@@ -43,6 +46,8 @@
 #'ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
 ss_calcs <- function(data, part, operator, meas) {
+  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+
   # count reps per part/operator
   reps <- aggregate(data[[meas]],
                     by = list(data[[part]], data[[operator]]),

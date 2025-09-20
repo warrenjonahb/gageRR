@@ -1,10 +1,13 @@
 
 #' Average and Range Method Repeatability Calculation
 #'
-#' @param data An R dataframe or tibble.
-#' @param part Column name (unquoted) specifying the unique ID of the part being measured.
-#' @param operator Column name (unquoted) specifying the operator for the recorded measurement.
-#' @param meas Column name (unquoted) where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part Column name (unquoted) specifying the unique ID of the part being measured. The column should be a
+#'   character or factor vector.
+#' @param operator Column name (unquoted) specifying the operator for the recorded measurement. The column should be a
+#'   character or factor vector.
+#' @param meas Column name (unquoted) where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
 #' @return A number. The measure of repeatability for the given data.
 #' @export
@@ -17,6 +20,8 @@
 #' )
 #' xbar_repeat(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 xbar_repeat <- function(data, part, operator, meas) {
+  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+
   # number of replicates per part/operator
   rep_counts <- aggregate(data[[meas]],
                           by = list(data[[part]], data[[operator]]),
@@ -49,10 +54,13 @@ xbar_repeat <- function(data, part, operator, meas) {
 
 #' Average and Range Method Reproducibility Calculation
 #'
-#' @param data An R dataframe or tibble.
-#' @param part Column name (unquoted) specifying the unique ID of the part being measured.
-#' @param operator Column name (unquoted) specifying the operator for the recorded measurement.
-#' @param meas Column name (unquoted) where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part Column name (unquoted) specifying the unique ID of the part being measured. The column should be a
+#'   character or factor vector.
+#' @param operator Column name (unquoted) specifying the operator for the recorded measurement. The column should be a
+#'   character or factor vector.
+#' @param meas Column name (unquoted) where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
 #' @return A number. The measure of reproducibility for the given data.
 #' @export
@@ -66,6 +74,8 @@ xbar_repeat <- function(data, part, operator, meas) {
 #' xbar_reproduce(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
 xbar_reproduce <- function(data, part, operator, meas) {
+  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+
   rep_counts <- aggregate(data[[meas]],
                           by = list(data[[part]], data[[operator]]),
                           FUN = length)
@@ -100,9 +110,11 @@ xbar_reproduce <- function(data, part, operator, meas) {
 
 #' Average and Range Method Part-to-Part Variance Calculation
 #'
-#' @param data An R dataframe or tibble.
-#' @param part Column name (unquoted) specifying the unique ID of the part being measured.
-#' @param meas Column name (unquoted) where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part Column name (unquoted) specifying the unique ID of the part being measured. The column should be a
+#'   character or factor vector.
+#' @param meas Column name (unquoted) where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
 #' @return A number. The measure of part-to-part variation for the given data.
 #' @export
@@ -115,6 +127,8 @@ xbar_reproduce <- function(data, part, operator, meas) {
 #' )
 #' part_to_part(data, part = 'SN', meas = 'Measure')
 part_to_part <- function(data, part, meas) {
+  validate_grr_inputs(data, part_col = part, operator_col = NULL, measure_col = meas)
+
   a <- length(unique(data[[part]]))
   if (a < 2) {
     return(0)

@@ -1,9 +1,12 @@
 #' Gage R&R Evaluation
 #'
-#' @param data An R dataframe or tibble.
-#' @param part A string giving the column name specifying the unique ID of the part being measured.
-#' @param operator A string giving the column name specifying the operator for the recorded measurement.
-#' @param meas A string giving the column name where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part A string giving the column name specifying the unique ID of the part being measured. The column
+#'   should be a character or factor.
+#' @param operator A string giving the column name specifying the operator for the recorded measurement. The column
+#'   should be a character or factor.
+#' @param meas A string giving the column name where the measurement value is recorded. The column must be numeric and
+#'   contain no missing or infinite values.
 #' @param method A string specifying "anova" or "xbar_r".
 #' @param LSL A number specifying the lower specification limit.
 #' @param USL A number specifying the upper specification limit.
@@ -26,6 +29,8 @@
 #' grr_calc(data, part = "SN", operator = "Operator",
 #'          meas = "Measure", LSL = 0, USL = 0.040, method = "xbar_r")
 grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova") {
+  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+
   if (method == "anova") {
     varComps <- anova_var_calcs(data, part, operator, meas)
     anovaTable <- anova_table(data, part, operator, meas)
