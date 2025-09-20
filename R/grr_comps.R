@@ -41,6 +41,14 @@ grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method 
     stop("Supplied method is not supported. Use 'anova' or 'xbar_r'.")
   }
 
+  if (!is.null(LSL) && !is.null(USL) && USL <= LSL) {
+    stop("USL must be greater than LSL", call. = FALSE)
+  }
+
+  if (is.null(LSL) && !is.null(USL) && USL <= 0) {
+    stop("USL must be greater than 0", call. = FALSE)
+  }
+
   # Build VarianceComponents data frame
   VarianceComponents <- data.frame(matrix(unlist(varComps)))
   row.names(VarianceComponents) <- names(varComps)

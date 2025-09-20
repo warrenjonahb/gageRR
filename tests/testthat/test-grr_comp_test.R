@@ -60,4 +60,12 @@ test_that("multiplication works", {
 
   expect_error(grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = .150, USL = NULL, method = 'anova'))
   expect_error(grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = .150, USL = NULL, method = 'avg_range'))
-})
+  expect_error(
+    grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = .180, USL = .150),
+    "USL must be greater than LSL"
+  )
+  expect_error(
+    grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', USL = 0),
+    "USL must be greater than 0"
+  )
+  })
