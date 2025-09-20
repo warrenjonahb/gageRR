@@ -34,7 +34,7 @@ Three references were used for the development of this package:
 
 2. "Methods and formulas for gage R&R table in Crossed Gage R&R Study"[^1]
 
-[^1]: https://support.minitab.com/minitab/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/crossed-gage-r-r-study/methods-and-formulas/gage-r-r-table/
+[^1]: moved to https://support.minitab.com/minitab/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/crossed-gage-r-r-study/methods-and-formulas/gage-r-r-table/
 
 3. "Six Sigma Study Guide"[^1] 
 
