@@ -18,23 +18,30 @@
 #' xbar_repeat(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 xbar_repeat <- function(data, part, operator, meas) {
   # number of replicates per part/operator
-  reps <- aggregate(data[[meas]],
-                    by = list(data[[part]], data[[operator]]),
-                    FUN = length)
-  if (length(unique(reps$x)) != 1) {
+  rep_counts <- aggregate(data[[meas]],
+                          by = list(data[[part]], data[[operator]]),
+                          FUN = length)
+
+  num_parts <- length(unique(data[[part]]))
+  num_opers <- length(unique(data[[operator]]))
+  expected_cells <- num_parts * num_opers
+
+  if (nrow(rep_counts) != expected_cells) {
+    stop("Balanced studies require every operator to measure every part.")
+  }
+
+  if (length(unique(rep_counts$x)) != 1) {
     stop("Each part must have an equal number of replicates")
   }
-  reps <- unique(reps$x)
+  reps <- unique(rep_counts$x)
 
-  a <- length(unique(data[[part]]))
-  k <- length(unique(data[[operator]]))
-  g1 <- a * k
+  g1 <- num_parts * num_opers
 
   d <- d2_minitab_df(m = reps, g = g1)
 
   xbar_rep <- aggregate(data[[meas]],
                         by = list(data[[part]], data[[operator]]),
-                        FUN = function(x) (max(x) - min(x)) / (a * k))
+                        FUN = function(x) (max(x) - min(x)) / (num_parts * num_opers))
 
   repeatability <- (sum(xbar_rep$x) / d)^2
   return(repeatability)
@@ -59,20 +66,25 @@ xbar_repeat <- function(data, part, operator, meas) {
 #' xbar_reproduce(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
 xbar_reproduce <- function(data, part, operator, meas) {
-  reps <- aggregate(data[[meas]],
-                    by = list(data[[part]], data[[operator]]),
-                    FUN = length)
-  if (length(unique(reps$x)) != 1) {
+  rep_counts <- aggregate(data[[meas]],
+                          by = list(data[[part]], data[[operator]]),
+                          FUN = length)
+
+  num_parts <- length(unique(data[[part]]))
+  num_opers <- length(unique(data[[operator]]))
+  expected_cells <- num_parts * num_opers
+
+  if (nrow(rep_counts) != expected_cells) {
+    stop("Balanced studies require every operator to measure every part.")
+  }
+  if (length(unique(rep_counts$x)) != 1) {
     stop("Each part must have an equal number of replicates")
   }
-  r <- unique(reps$x)
+  r <- unique(rep_counts$x)
 
-  a <- length(unique(data[[part]]))
-  m1 <- length(unique(data[[operator]]))
+  if (num_opers == 1) return(0)
 
-  if (m1 == 1) return(0)
-
-  d <- d2_minitab_df(m = m1, g = 1)
+  d <- d2_minitab_df(m = num_opers, g = 1)
 
   xbar_i <- aggregate(data[[meas]],
                       by = list(data[[operator]]),
@@ -81,7 +93,7 @@ xbar_reproduce <- function(data, part, operator, meas) {
 
   repeatability <- xbar_repeat(data, part, operator, meas)
 
-  reproducibility <- max((x_diff / d)^2 - (repeatability^2 / (a * r)), 0)
+  reproducibility <- max((x_diff / d)^2 - (repeatability^2 / (num_parts * r)), 0)
   return(reproducibility)
 }
 

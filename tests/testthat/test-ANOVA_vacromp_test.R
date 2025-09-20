@@ -62,3 +62,35 @@ test_that("ss_calcs requires at least two replicates per part/operator", {
     fixed = TRUE
   )
 })
+
+test_that("ANOVA requires every operator-part combination", {
+  data <- data.frame(
+    SN = c(
+      "SerialNumber_01",
+      "SerialNumber_01",
+      "SerialNumber_02",
+      "SerialNumber_02",
+      "SerialNumber_01",
+      "SerialNumber_01"
+    ),
+    Operator = c(
+      "Operator_01",
+      "Operator_01",
+      "Operator_01",
+      "Operator_01",
+      "Operator_02",
+      "Operator_02"
+    ),
+    Measure = c(1, 1.1, 2, 2.1, 1.5, 1.6)
+  )
+
+  expect_error(
+    ss_calcs(data, part = "SN", operator = "Operator", meas = "Measure"),
+    "Balanced studies require every operator to measure every part."
+  )
+
+  expect_error(
+    anova_var_calcs(data, part = "SN", operator = "Operator", meas = "Measure"),
+    "Balanced studies require every operator to measure every part."
+  )
+})

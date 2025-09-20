@@ -48,6 +48,15 @@ ss_calcs <- function(data, part, operator, meas) {
                     by = list(data[[part]], data[[operator]]),
                     FUN = length)
 
+  num_parts <- length(unique(data[[part]]))
+  num_opers <- length(unique(data[[operator]]))
+  expected_cells <- num_parts * num_opers
+
+  if (nrow(reps) != expected_cells) {
+    stop("Balanced studies require every operator to measure every part.")
+  }
+
+
   if (length(unique(reps$x)) != 1) {
     stop("Each part must have an equal number of replicates")
   }
@@ -57,18 +66,15 @@ ss_calcs <- function(data, part, operator, meas) {
     stop("At least two replicates per part/operator are required.", call. = FALSE)
   }
 
-  p <- length(unique(data[[part]]))
-  t <- length(unique(data[[operator]]))
-
   overall_mean <- mean(data[[meas]])
 
   # Operator SS
   op_means <- tapply(data[[meas]], data[[operator]], mean)
-  SS_oper_error <- sum((op_means - overall_mean)^2) * p * r
+  SS_oper_error <- sum((op_means - overall_mean)^2) * num_parts * r
 
   # Part SS
   part_means <- tapply(data[[meas]], data[[part]], mean)
-  SS_part_error <- sum((part_means - overall_mean)^2) * t * r
+  SS_part_error <- sum((part_means - overall_mean)^2) * num_opers * r
 
   # Total SS
   SS_total_error <- sum((data[[meas]] - overall_mean)^2)
@@ -87,8 +93,8 @@ ss_calcs <- function(data, part, operator, meas) {
 
   return(list(
     reps = as.integer(r),
-    num_parts = as.integer(p),
-    num_opers = as.integer(t),
+    num_parts = as.integer(num_parts),
+    num_opers = as.integer(num_opers),
     SS_oper_error = as.double(SS_oper_error),
     SS_part_error = as.double(SS_part_error),
     SS_equip_error = as.double(SS_equip_error),
