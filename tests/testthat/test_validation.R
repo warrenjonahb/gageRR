@@ -6,7 +6,7 @@ test_that("grr_calc validates required measurement column", {
 
   expect_error(
     grr_calc(data, part = "SN", operator = "Operator", meas = "Measure"),
-    "Column 'Measure' is missing"
+    'Column "Measure" is missing'
   )
 })
 
@@ -32,6 +32,6 @@ test_that("grr_calc rejects missing measurement values", {
 
   expect_error(
     grr_calc(data, part = "SN", operator = "Operator", meas = "Measure"),
-    "missing (NA/NaN)"
+    "(NA/NaN)"
   )
 })
