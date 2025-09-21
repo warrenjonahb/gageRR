@@ -103,7 +103,7 @@ xbar_reproduce <- function(data, part, operator, meas) {
 
   repeatability <- xbar_repeat(data, part, operator, meas)
 
-  reproducibility <- max((x_diff / d)^2 - (repeatability^2 / (num_parts * r)), 0)
+  reproducibility <- max((x_diff / d)^2 - (repeatability / (num_parts * r)), 0)
   return(reproducibility)
 }
 
