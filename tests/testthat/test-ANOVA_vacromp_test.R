@@ -47,13 +47,17 @@ test_that("ss_calcs requires at least two replicates per part/operator", {
   data <- data.frame(
     SN = c(
       "SerialNumber_01",
+      "SerialNumber_02",
+      "SerialNumber_01",
       "SerialNumber_02"
     ),
     Operator = c(
       "Operator_01",
-      "Operator_02"
+      "Operator_02",
+      "Operator_02",
+      "Operator_01"
     ),
-    Measure = c(1, 2)
+    Measure = c(1, 2, 2, 1)
   )
 
   expect_error(
