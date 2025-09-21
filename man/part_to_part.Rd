@@ -7,11 +7,13 @@
 part_to_part(data, part, meas)
 }
 \arguments{
-\item{data}{An R dataframe or tibble.}
+\item{data}{An R dataframe or tibble containing the required identifier and measurement columns.}
 
-\item{part}{Column name (unquoted) specifying the unique ID of the part being measured.}
+\item{part}{Column name (unquoted) specifying the unique ID of the part being measured. The column should be a
+character or factor vector.}
 
-\item{meas}{Column name (unquoted) where the measurement value is recorded.}
+\item{meas}{Column name (unquoted) where the measurement value is recorded. The column must be numeric and contain no
+missing or infinite values.}
 }
 \value{
 A number. The measure of part-to-part variation for the given data.

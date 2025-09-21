@@ -7,13 +7,16 @@
 ss_calcs(data, part, operator, meas)
 }
 \arguments{
-\item{data}{An R dataframe or tibble.}
+\item{data}{An R dataframe or tibble containing the required identifier and measurement columns.}
 
-\item{part}{A column in data specifying the unique ID of the part being measured}
+\item{part}{A column in data specifying the unique ID of the part being measured. The column should be a character or
+factor vector.}
 
-\item{operator}{A column in data specifying the operator for the recorded measurement}
+\item{operator}{A column in data specifying the operator for the recorded measurement. The column should be a
+character or factor vector.}
 
-\item{meas}{A column in data where the measurement value is recorded.}
+\item{meas}{A column in data where the measurement value is recorded. The column must be numeric and contain no
+missing or infinite values.}
 }
 \value{
 A list of numeric values for the sum of squares error for operator, part, equipment, operator and part interaction, and total error.

@@ -7,13 +7,16 @@
 grr_calc(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova")
 }
 \arguments{
-\item{data}{An R dataframe or tibble.}
+\item{data}{An R dataframe or tibble containing the required identifier and measurement columns.}
 
-\item{part}{A string giving the column name specifying the unique ID of the part being measured.}
+\item{part}{A string giving the column name specifying the unique ID of the part being measured. The column
+should be a character or factor.}
 
-\item{operator}{A string giving the column name specifying the operator for the recorded measurement.}
+\item{operator}{A string giving the column name specifying the operator for the recorded measurement. The column
+should be a character or factor.}
 
-\item{meas}{A string giving the column name where the measurement value is recorded.}
+\item{meas}{A string giving the column name where the measurement value is recorded. The column must be numeric and
+contain no missing or infinite values.}
 
 \item{LSL}{A number specifying the lower specification limit.}
 
