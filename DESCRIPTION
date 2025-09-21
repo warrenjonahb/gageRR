@@ -13,7 +13,9 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    readxl,
+    shiny
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: 
