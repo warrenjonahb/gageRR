@@ -1,5 +1,6 @@
 # Internal helper to validate GRR inputs
 validate_grr_inputs <- function(data, part_col, operator_col = NULL, measure_col) {
+
   if (!inherits(data, "data.frame")) {
     stop("`data` must be a data.frame or tibble.")
   }
