@@ -2,7 +2,9 @@
 # gageRR <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 Analyzing measurement system error is a critical component of the
@@ -26,6 +28,12 @@ You can install the development version of gageRR from
 ``` r
 # install.packages("devtools")
 devtools::install_github("warrenjonahb/gageRR")
+```
+
+After installation you can run the Shiny App with:
+
+``` r
+shiny::runApp(system.file("app", package = "gageRR"))
 ```
 
 ## Example
@@ -74,7 +82,7 @@ Measure = c(
 Next we can calculate the sum of squares and ANOVA variance components:
 
 ``` r
-ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 #> $reps
 #> [1] 2
 #> 
@@ -98,15 +106,15 @@ ss_calcs(data, part = SN, operator = Operator, meas = Measure)
 #> 
 #> $SS_total_error
 #> [1] 8.715e-06
-anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
+#> $total_grr
+#> [1] 9.375e-07
+#> 
 #> $repeatability
 #> [1] 8.325e-07
 #> 
 #> $reproducibility
 #> [1] 1.05e-07
-#> 
-#> $total_grr
-#> [1] 9.375e-07
 #> 
 #> $part_to_part
 #> [1] 1.18125e-06
@@ -119,20 +127,29 @@ With these variance components we can then calculate the final gage
 evaluation statistics:
 
 ``` r
-grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'anova')
+grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = 0, USL = .040, method = 'anova')
 #> $VarianceComponents
 #>                     VarComp PercentContribution
+#> total_grr       9.37500e-07          0.44247788
 #> repeatability   8.32500e-07          0.39292035
 #> reproducibility 1.05000e-07          0.04955752
-#> total_grr       9.37500e-07          0.44247788
 #> part_to_part    1.18125e-06          0.55752212
 #> total_var       2.11875e-06          1.00000000
 #> 
 #> $GageEval
 #>                       StdDev    StudyVar PercentStudyVar PercentTolerance
+#> total_grr       0.0009682458 0.005809475       0.6651901       0.14523688
 #> repeatability   0.0009124144 0.005474486       0.6268336       0.13686216
 #> reproducibility 0.0003240370 0.001944222       0.2226152       0.04860556
-#> total_grr       0.0009682458 0.005809475       0.6651901       0.14523688
 #> part_to_part    0.0010868533 0.006521120       0.7466740       0.16302799
 #> total_var       0.0014555927 0.008733556       1.0000000       0.21833890
+#> 
+#> $AnovaTable
+#>             Df    Sum Sq   Mean Sq F value Pr(>F)  
+#> Operator     1 5.000e-07 5.000e-07   0.601 0.4816  
+#> SN           1 4.805e-06 4.805e-06   5.772 0.0742 .
+#> Operator:SN  1 8.000e-08 8.000e-08   0.096 0.7720  
+#> Residuals    4 3.330e-06 8.330e-07                 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
