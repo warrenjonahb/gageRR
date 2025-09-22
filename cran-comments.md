@@ -1,0 +1,22 @@
+## Test environments
+
+-   local R installation, R 4.4.1 on Windows 11
+-   win-builder (devel and release)
+-   rhub checks (Ubuntu Linux, Fedora Linux, Windows Server)
+
+## R CMD check results
+
+There were no ERRORs or WARNINGs.
+
+There was 1 NOTE:
+
+-   checking CRAN incoming feasibility … NOTE Maintainer: ‘Jonah Warren
+    <warren.jonahb@gmail.com>’ New submission Possibly misspelled words
+    in DESCRIPTION: XBar gage
+
+These terms are correctly spelled domain-specific terminology
+(statistical quality control and Gage R&R context).
+
+## Downstream dependencies
+
+There are currently no downstream dependencies.
