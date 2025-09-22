@@ -46,7 +46,7 @@
 #'ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
 ss_calcs <- function(data, part, operator, meas) {
-  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
   # count reps per part/operator
   reps <- aggregate(data[[meas]],

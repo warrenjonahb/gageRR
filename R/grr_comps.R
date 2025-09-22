@@ -30,7 +30,7 @@
 #'          meas = "Measure", LSL = 0, USL = 0.040, method = "xbar_r")
 grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova") {
 
-  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
   if (method == "anova") {
     varComps <- anova_var_calcs(data, part, operator, meas)

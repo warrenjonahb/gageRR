@@ -227,3 +227,8 @@ Percent Tolerance - Percentage of the tolerance band (if provided) that is taken
 grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = NULL, USL = .04, method = 'anova')
 ```
 
+### Shiny App
+
+*The same calculation can be achieved within a Shiny App by running the following command*
+
+shiny::runApp(system.file("app", package = "gageRR"))

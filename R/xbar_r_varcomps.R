@@ -20,7 +20,7 @@
 #' )
 #' xbar_repeat(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 xbar_repeat <- function(data, part, operator, meas) {
-  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
   # number of replicates per part/operator
   rep_counts <- aggregate(data[[meas]],
@@ -74,7 +74,7 @@ xbar_repeat <- function(data, part, operator, meas) {
 #' xbar_reproduce(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
 xbar_reproduce <- function(data, part, operator, meas) {
-  validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
   rep_counts <- aggregate(data[[meas]],
                           by = list(data[[part]], data[[operator]]),
@@ -127,7 +127,7 @@ xbar_reproduce <- function(data, part, operator, meas) {
 #' )
 #' part_to_part(data, part = 'SN', meas = 'Measure')
 part_to_part <- function(data, part, meas) {
-  validate_grr_inputs(data, part_col = part, operator_col = NULL, measure_col = meas)
+  data <- validate_grr_inputs(data, part_col = part, operator_col = NULL, measure_col = meas)
 
   a <- length(unique(data[[part]]))
   if (a < 2) {
