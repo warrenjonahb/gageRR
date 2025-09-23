@@ -182,6 +182,11 @@ anova_var_calcs <- function(data, part, operator, meas) {
   }
 
   if (!is.null(p_val) && p_val < .05) {
+    MS_equip <- (SS_equip_error ) /
+      (num_parts * num_opers * (reps - 1))
+  }
+
+  if (is.null(p_val) || p_val > .05) {
     MS_equip <- (SS_equip_error + SS_op_part_error) /
       (((num_opers - 1) * (num_parts - 1)) + (num_parts * num_opers * (reps - 1)))
   }
@@ -190,10 +195,6 @@ anova_var_calcs <- function(data, part, operator, meas) {
   var_oper_part <- max((MS_part - MS_equip) / reps, 0)
   var_part <- max((MS_part - MS_oper_part) / (reps * num_opers), 0)
   var_oper <- max((MS_oper - MS_oper_part) / (reps * num_parts), 0)
-
-  if (is.null(p_val) || p_val > .05) {
-    var_oper_part <- 0
-  }
 
   repeatability <- var_repeat
   reproducibility <- var_oper + var_oper_part
