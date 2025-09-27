@@ -167,6 +167,7 @@ anova_var_calcs <- function(data, part, operator, meas) {
   SS_part_error <- ss_comp$SS_part_error
   SS_equip_error <- ss_comp$SS_equip_error
   SS_op_part_error <- ss_comp$SS_op_part_error
+  SS_no_interaction <- ss_comp$SS_no_interaction
   SS_total_error <- ss_comp$SS_total_error
 
   MS_oper <- if (num_opers == 1) 0 else SS_oper_error / (num_opers - 1)
@@ -187,22 +188,17 @@ anova_var_calcs <- function(data, part, operator, meas) {
 
   if (!is.null(p_val) && p_val < .05) {
     MS_equip <- (SS_equip_error ) / (num_parts * num_opers * (reps - 1))
-
-    var_oper <- max((MS_oper - MS_oper_part) / (reps * num_parts), 0)
   }
 
   if (is.null(p_val) || p_val > .05) {
     MS_equip <- (SS_equip_error + SS_op_part_error) /
       (((num_opers - 1) * (num_parts - 1)) + (num_parts * num_opers * (reps - 1)))
-
-    var_oper <- max((SS_op_part_error + SS_equip_error) /
-                      ((num_opers-1)*(num_parts-1)+num_opers*num_parts*(reps-1)), 0)
-
   }
 
   var_repeat <- max(MS_equip, 0)
-  var_oper_part <- max((MS_part - MS_equip) / reps, 0)
+  var_oper_part <- max((MS_oper_part - MS_equip) / reps, 0)
   var_part <- max((MS_part - MS_oper_part) / (reps * num_opers), 0)
+  var_oper <- max((MS_oper - MS_equip) / (reps * num_parts),0)
 
 
   repeatability <- var_repeat
