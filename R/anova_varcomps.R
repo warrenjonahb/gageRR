@@ -96,6 +96,9 @@ ss_calcs <- function(data, part, operator, meas) {
   # Operator*Part interaction
   SS_op_part_error <- SS_total_error - (SS_oper_error + SS_part_error + SS_equip_error)
 
+  # No Operator*Part interaction
+  SS_no_interaction <- (SS_op_part_error + SS_equip_error)
+
   return(list(
     reps = as.integer(r),
     num_parts = as.integer(num_parts),
@@ -104,6 +107,7 @@ ss_calcs <- function(data, part, operator, meas) {
     SS_part_error = as.double(SS_part_error),
     SS_equip_error = as.double(SS_equip_error),
     SS_op_part_error = as.double(SS_op_part_error),
+    SS_no_interaction = as.double(SS_no_interaction),
     SS_total_error = as.double(SS_total_error)
   ))
 }
