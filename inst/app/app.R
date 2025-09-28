@@ -61,7 +61,9 @@ ui <- shiny::fluidPage(
         ),
         shiny::tabPanel(
           "Gage Evaluation",
-          shiny::tableOutput("gage_eval")
+          shiny::tableOutput("gage_eval"),
+          shiny::br(),
+          shiny::textOutput("num_distinct_cats")
         ),
         shiny::tabPanel(
           "ANOVA Table",
@@ -159,7 +161,7 @@ server <- function(input, output, session) {
       row.names = NULL,
       check.names = FALSE
     )
-  })
+  }, digits = 6)
 
   output$gage_eval <- shiny::renderTable({
     result <- analysis()
@@ -168,12 +170,29 @@ server <- function(input, output, session) {
     }
 
     ge <- result$GageEval
+    numeric_cols <- vapply(ge, is.numeric, logical(1))
+    ge[numeric_cols] <- lapply(ge[numeric_cols], function(col) round(col * 100, 3))
+
+    colnames(ge)[colnames(ge) == "StdDev"] <- "%StdDev"
+    colnames(ge)[colnames(ge) == "StudyVar"] <- "%StudyVar"
+    colnames(ge)[colnames(ge) == "PercentStudyVar"] <- "%PercentStudyVar"
+
     data.frame(
       Component = rownames(ge),
       ge,
       row.names = NULL,
       check.names = FALSE
     )
+  })
+
+  output$num_distinct_cats <- shiny::renderText({
+    result <- analysis()
+    if (is_app_error(result)) {
+      shiny::validate(shiny::need(FALSE, result$message))
+    }
+
+    ndc <- result$NumDistinctCats
+    sprintf("Num Distinct Categories: %s", ndc)
   })
 
   output$anova_table <- shiny::renderPrint({
