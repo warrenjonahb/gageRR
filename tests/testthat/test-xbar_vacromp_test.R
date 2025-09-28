@@ -53,7 +53,12 @@ test_that("xbar reproducibility matches manual calculation for balanced 2x2 desi
   r <- r[[1]]
 
   m1 <- length(unique(data$Operator))
-  d_operator <- d2_minitab_df(m = m1, g = 1)
+
+  if (m1 <= 20){
+    d <- d_table[d_table$g == 1 & d_table$m == m1, "d2"]
+  } else{
+    d <- d2_minitab_df(m = m1, g = 1)
+  }
 
   operator_means <- aggregate(data$Measure,
                               by = list(data$Operator),
@@ -62,7 +67,7 @@ test_that("xbar reproducibility matches manual calculation for balanced 2x2 desi
 
   repeatability <- xbar_repeat(data, part = "SN", operator = "Operator", meas = "Measure")
 
-  expected_reproducibility <- max((x_diff / d_operator)^2 - (repeatability / (a * r)), 0)
+  expected_reproducibility <- max((x_diff / d)^2 - (repeatability / (a * r)), 0)
 
   expect_equal(
     xbar_reproduce(data, part = "SN", operator = "Operator", meas = "Measure"),
