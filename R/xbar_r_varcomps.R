@@ -42,7 +42,11 @@ xbar_repeat <- function(data, part, operator, meas) {
 
   g1 <- num_parts * num_opers
 
-  d <- d2_minitab_df(m = reps, g = g1)
+  if (g1 <= 20 & reps <= 20){
+    d <- d_table[d_table$g == g1 & d_table$m == reps, "d2"]
+  } else{
+    d <- d2_minitab_df(m = reps, g = g1)
+  }
 
   xbar_rep <- aggregate(data[[meas]],
                         by = list(data[[part]], data[[operator]]),
@@ -94,7 +98,11 @@ xbar_reproduce <- function(data, part, operator, meas) {
 
   if (num_opers == 1) return(0)
 
-  d <- d2_minitab_df(m = num_opers, g = 1)
+  if (num_opers <= 20){
+    d <- d_table[d_table$g == 1 & d_table$m == num_opers, "d2"]
+    } else{
+    d <- d2_minitab_df(m = num_opers, g = 1)
+    }
 
   xbar_i <- aggregate(data[[meas]],
                       by = list(data[[operator]]),
@@ -103,7 +111,7 @@ xbar_reproduce <- function(data, part, operator, meas) {
 
   repeatability <- xbar_repeat(data, part, operator, meas)
 
-  reproducibility <- max((x_diff / d)^2 - (repeatability / (num_parts * r)), 0)
+  reproducibility <- max(sqrt((x_diff / d)^2 - (repeatability / (num_parts * r)))^2, 0)
   return(reproducibility)
 }
 
@@ -137,7 +145,11 @@ part_to_part <- function(data, part, meas) {
                            by = list(data[[part]]),
                            FUN = mean)
 
-    d <- d2_minitab_df(m = a, g = 1)
+    if (a <= 20){
+      d <- d_table[d_table$g == 1 & d_table$m == a, "d2"]
+    } else{
+      d <- d2_minitab_df(m = a, g = 1)
+    }
 
     r_p <- ((max(part_meas$x) - min(part_meas$x)) / d)^2
 
