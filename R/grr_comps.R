@@ -65,6 +65,11 @@ grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method 
   TotalStudyVar <- GageEval["total_var", "StudyVar"]
   GageEval["PercentStudyVar"] <- GageEval$StudyVar / TotalStudyVar
 
+  num_dist_cats <- sqrt(2) * (GageEval["part_to_part", "StdDev"] /
+                                GageEval["repeatability", "StdDev"])
+
+  num_dist_cats_int <- floor(num_dist_cats)
+
   if (!is.null(USL) | !is.null(LSL)) {
     if (is.null(USL) & !is.null(LSL)) {
       stop("LSL provided with no USL. Unable to interpret tolerance band.")
@@ -79,6 +84,7 @@ grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method 
   return(list(
     VarianceComponents = VarianceComponents,
     GageEval = GageEval,
+    NumDistinctCats = num_dist_cats_int,
     AnovaTable = anovaTable
   ))
 }
