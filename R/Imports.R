@@ -1,3 +1,3 @@
 #' @import dplyr
-#' @import ggplot2
+#' @importFrom stats as.formula aov pnorm integrate aggregate
 NULL

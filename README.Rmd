@@ -30,6 +30,11 @@ You can install the development version of gageRR from [GitHub](https://github.c
 # install.packages("devtools")
 devtools::install_github("warrenjonahb/gageRR")
 ```
+After installation you can run the Shiny App with:
+
+```r
+shiny::runApp(system.file("app", package = "gageRR"))
+```
 
 ## Example
 
@@ -75,13 +80,13 @@ Measure = c(
 Next we can calculate the sum of squares and ANOVA variance components:
 
 ```{r anova}
-ss_calcs(data, part = SN, operator = Operator, meas = Measure)
-anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
+anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 ```
 
 With these variance components we can then calculate the final gage evaluation statistics:
 
 ```{r anova_gage_eval}
-grr_calc(data, part = SN, operator = Operator, meas = Measure, LSL = 0, USL = .040, method = 'anova')
+grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = 0, USL = .040, method = 'anova')
 
 ```

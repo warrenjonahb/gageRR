@@ -7,59 +7,41 @@
 grr_calc(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova")
 }
 \arguments{
-\item{data}{An R dataframe or tible.}
+\item{data}{An R dataframe or tibble containing the required identifier and measurement columns.}
 
-\item{part}{A column in the data specifying the unique ID of the part being measured}
+\item{part}{A string giving the column name specifying the unique ID of the part being measured. The column
+should be a character or factor.}
 
-\item{operator}{A column in data specifying the operator for the recorded measurement}
+\item{operator}{A string giving the column name specifying the operator for the recorded measurement. The column
+should be a character or factor.}
 
-\item{meas}{A column in data where the measurement value is recorded.}
+\item{meas}{A string giving the column name where the measurement value is recorded. The column must be numeric and
+contain no missing or infinite values.}
 
-\item{LSL}{A number to specify the lower specification limit.}
+\item{LSL}{A number specifying the lower specification limit.}
 
-\item{USL}{A number to specify the upper specification limit.}
+\item{USL}{A number specifying the upper specification limit.}
 
-\item{method}{A string specifying 'anova' or 'xbar_r'}
+\item{method}{A string specifying "anova" or "xbar_r".}
 }
 \value{
-A list of two dataframes: VarianceComponents and GageEval
+A list containing:
+\itemize{
+\item VarianceComponents: Data frame of variance components and percent contribution
+\item GageEval: Data frame of study variation metrics
+\item AnovaTable: ANOVA table (if method = "anova")
+}
 }
 \description{
 Gage R&R Evaluation
 }
 \examples{
+data <- data.frame(
+  SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+  Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+  Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+)
 
-data = data.frame(
-SN = c(
-'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_02',
-'SerialNumber_02',
-'SerialNumber_01',
-'SerialNumber_01',
-'SerialNumber_02',
-'SerialNumber_02'),
-
-Operator = c(
-'Operator_01',
-'Operator_01',
-'Operator_01',
-'Operator_01',
-'Operator_02',
-'Operator_02',
-'Operator_02',
-'Operator_02'),
-
-Measure = c(
-0.0172,
-0.0177,
-0.0155,
-0.0159,
-0.0174,
-0.0181,
-0.0152,
-0.0176))
-
-grr_calc(data, part = SN, operator = Operator,
-meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
+grr_calc(data, part = "SN", operator = "Operator",
+         meas = "Measure", LSL = 0, USL = 0.040, method = "xbar_r")
 }

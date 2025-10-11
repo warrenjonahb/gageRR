@@ -1,9 +1,12 @@
 #' ANOVA Sum of Squares Calculations
 #'
-#' @param data An R dataframe or tibble.
-#' @param part A column in data specifying the unique ID of the part being measured
-#' @param operator A column in data specifying the operator for the recorded measurement
-#' @param meas A column in data where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part A column in data specifying the unique ID of the part being measured. The column should be a character or
+#'   factor vector.
+#' @param operator A column in data specifying the operator for the recorded measurement. The column should be a
+#'   character or factor vector.
+#' @param meas A column in data where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
 #' @return A list of numeric values for the sum of squares error for operator, part, equipment, operator and part interaction, and total error.
 #' @export
@@ -40,70 +43,75 @@
 #' 0.0152,
 #' 0.0176))
 #'
-#'ss_calcs(data, part = SN, operator = Operator, meas = Measure)
+#'ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
-ss_calcs = function(data, part, operator, meas){
+ss_calcs <- function(data, part, operator, meas) {
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
-    reps = data %>%
-      select({{part}}, {{operator}}) %>%
-      group_by({{part}}, {{operator}}) %>%
-      summarize(rep = n(), .groups = 'keep')
+  # count reps per part/operator
+  reps <- aggregate(data[[meas]],
+                    by = list(data[[part]], data[[operator]]),
+                    FUN = length)
 
-  #Small correction here need equal number of reps across each operator/part combo
-    if (length(unique(reps$rep)) != 1) {
-      stop("Each part must have an equal number of replicates")
-    }
+  num_parts <- length(unique(data[[part]]))
+  num_opers <- length(unique(data[[operator]]))
+  expected_cells <- num_parts * num_opers
 
-    r = unique(reps$rep)
+  if (nrow(reps) != expected_cells) {
+    stop("Balanced studies require every operator to measure every part.")
+  }
 
-    p = data %>%
-        select({{part}}) %>%
-        distinct() %>%
-        count()
 
-    t = data %>%
-      select({{operator}}) %>%
-      distinct() %>%
-      count()
+  if (length(unique(reps$x)) != 1) {
+    stop("Each part must have an equal number of replicates")
+  }
+  r <- unique(reps$x)
 
-    SS_oper = data %>%
-      mutate(overall_mean = mean({{meas}})) %>%
-      group_by({{operator}}) %>%
-      mutate(op_mean = mean({{meas}})) %>%
-      mutate(sq_error = (op_mean - overall_mean)^2)
+  if (r < 2) {
+    stop("At least two replicates per part/operator are required.", call. = FALSE)
+  }
 
-    SS_oper_error = sum(SS_oper$sq_error)
+  overall_mean <- mean(data[[meas]])
 
-    SS_part = data %>%
-      mutate(overall_mean = mean({{meas}})) %>%
-      group_by({{part}}) %>%
-      mutate(part_mean = mean({{meas}})) %>%
-      mutate(sq_error = (part_mean -overall_mean)^2)
+  # Operator SS
+  op_means <- tapply(data[[meas]], data[[operator]], mean)
+  SS_oper_error <- sum((op_means - overall_mean)^2) * num_parts * r
 
-    SS_part_error = sum(SS_part$sq_error)
+  # Part SS
+  part_means <- tapply(data[[meas]], data[[part]], mean)
+  SS_part_error <- sum((part_means - overall_mean)^2) * num_opers * r
 
-    SS_total = data %>%
-      mutate(overall_mean = mean({{meas}})) %>%
-      mutate(sq_error = ({{meas}} - overall_mean)^2)
+  # Total SS
+  SS_total_error <- sum((data[[meas]] - overall_mean)^2)
 
-    SS_total_error = sum(SS_total$sq_error)
+  # Equipment (repeatability)
+  op_part_means <- aggregate(data[[meas]],
+                             by = list(data[[operator]], data[[part]]),
+                             FUN = mean)
+  merged <- merge(data, op_part_means,
+                  by.x = c(operator, part),
+                  by.y = c("Group.1", "Group.2"))
+  SS_equip_error <- sum((merged$x - merged[[meas]])^2) # deviation within op*part
 
-    SS_equip = data %>%
-      group_by({{operator}}, {{part}}) %>%
-      mutate(op_part_mean = mean({{meas}})) %>%
-      mutate(sq_error = (op_part_mean - {{meas}})^2)
+  # Operator*Part interaction
+  SS_op_part_error <- SS_total_error - (SS_oper_error + SS_part_error + SS_equip_error)
 
-    SS_equip_error = sum(SS_equip$sq_error)
+  # No Operator*Part interaction
+  SS_no_interaction <- (SS_op_part_error + SS_equip_error)
 
-    SS_op_part_error = SS_total_error - (SS_oper_error + SS_part_error + SS_equip_error)
-
-    return(list(reps = as.integer(r), num_parts = as.integer(p), num_opers = as.integer(t),
-                SS_oper_error = as.double(SS_oper_error),
-                SS_part_error = as.double(SS_part_error),
-                SS_equip_error = as.double(SS_equip_error),
-                SS_op_part_error = as.double(SS_op_part_error),
-                SS_total_error = as.double(SS_total_error)))
+  return(list(
+    reps = as.integer(r),
+    num_parts = as.integer(num_parts),
+    num_opers = as.integer(num_opers),
+    SS_oper_error = as.double(SS_oper_error),
+    SS_part_error = as.double(SS_part_error),
+    SS_equip_error = as.double(SS_equip_error),
+    SS_op_part_error = as.double(SS_op_part_error),
+    SS_no_interaction = as.double(SS_no_interaction),
+    SS_total_error = as.double(SS_total_error)
+  ))
 }
+
 
 #' ANOVA Variance Component Calculations
 #'
@@ -147,100 +155,118 @@ ss_calcs = function(data, part, operator, meas){
 #' 0.0152,
 #' 0.0176))
 #'
-#'anova_var_calcs(data, part = SN, operator = Operator, meas = Measure)
+#'anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
-anova_var_calcs = function(data, part, operator, meas)  {
+anova_var_calcs <- function(data, part, operator, meas) {
+  ss_comp <- ss_calcs(data, part, operator, meas)
 
-  ss_comp = ss_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+  reps <- ss_comp$reps
+  num_parts <- ss_comp$num_parts
+  num_opers <- ss_comp$num_opers
+  SS_oper_error <- ss_comp$SS_oper_error
+  SS_part_error <- ss_comp$SS_part_error
+  SS_equip_error <- ss_comp$SS_equip_error
+  SS_op_part_error <- ss_comp$SS_op_part_error
+  SS_no_interaction <- ss_comp$SS_no_interaction
+  SS_total_error <- ss_comp$SS_total_error
 
-  reps = ss_comp$reps
-  num_parts = ss_comp$num_parts
-  num_opers = ss_comp$num_opers
-  SS_oper_error = ss_comp$SS_oper_error
-  SS_part_error = ss_comp$SS_part_error
-  SS_equip_error = ss_comp$SS_equip_error
-  SS_op_part_error = ss_comp$SS_op_part_error
-  SS_total_error = ss_comp$SS_total_error
+  MS_oper <- if (num_opers == 1) 0 else SS_oper_error / (num_opers - 1)
+  MS_part <- if (num_parts == 1) 0 else SS_part_error / (num_parts - 1)
+  MS_oper_part <- if (num_parts == 1 | num_opers == 1) 0 else SS_op_part_error / ((num_opers - 1) * (num_parts - 1))
+  MS_equip <- SS_equip_error / (num_parts * num_opers * (reps - 1))
 
-  if(num_opers == 1){
-    MS_oper = 0
-  }else{
-    MS_oper = SS_oper_error/(num_opers - 1)
+  # Compute p-value for interaction
+  if (num_parts == 1 | num_opers == 1) {
+    p_val <- NULL
+  } else {
+    F_stat <- MS_oper_part / MS_equip
+    p_val <- stats::pf(F_stat,
+                       df1 = as.integer((num_opers - 1) * (num_parts - 1)),
+                       df2 = as.integer(num_parts * num_opers * (reps - 1)),
+                       lower.tail = FALSE)
   }
 
-  if(num_parts == 1){
-    MS_part = 0
-  }else{
-    MS_part = SS_part_error/(num_parts - 1)
+  if (!is.null(p_val) && p_val < .05) {
+    MS_equip <- (SS_equip_error ) / (num_parts * num_opers * (reps - 1))
   }
 
-  if(num_parts == 1 | num_opers == 1){
-    MS_oper_part = 0
-  }else{
-    MS_oper_part = SS_op_part_error/((num_opers - 1)*(num_parts - 1))
+  if (is.null(p_val) || p_val > .05) {
+    MS_equip <- (SS_equip_error + SS_op_part_error) /
+      (((num_opers - 1) * (num_parts - 1)) + (num_parts * num_opers * (reps - 1)))
   }
 
-  MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
+  var_repeat <- max(MS_equip, 0)
+  var_oper_part <- max((MS_oper_part - MS_equip) / reps, 0)
+  var_part <- max((MS_part - MS_oper_part) / (reps * num_opers), 0)
+  var_oper <- max((MS_oper - MS_equip) / (reps * num_parts),0)
 
-  #compute p-val part_oper interaction
-  if(num_parts == 1 | num_opers == 1){
-    p_val = NULL
-  }else {
-  F_stat = MS_oper_part/(MS_equip)
-  p_val = stats::pf(F_stat[[1]],
-             df1 = as.integer((num_opers - 1)*(num_parts - 1)),
-             df2 = as.integer(num_parts * num_opers * (reps-1)),
-            lower.tail = FALSE    )}
 
-  if(is.null(p_val)){
-    MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
-  }else  if (p_val < .05) {
-    MS_equip = (SS_equip_error + SS_op_part_error)/((num_opers - 1)*(num_parts - 1)+(num_parts * num_opers * (reps-1)))
-  }else{
-    MS_equip = SS_equip_error / (num_parts * num_opers * (reps-1))
-    }
+  repeatability <- var_repeat
+  reproducibility <- var_oper + var_oper_part
+  total_grr <- repeatability + reproducibility
+  part_to_part <- var_part
+  total_var <- total_grr + part_to_part
 
-  var_repeat = MS_equip
-  var_oper_part = (MS_part - MS_equip)/reps
-  var_part = (MS_part - MS_oper_part)/(reps * num_opers)
-  var_oper = (MS_oper - MS_oper_part)/(reps * num_parts)
+  return(list(
+    total_grr = total_grr,
+    repeatability = repeatability,
+    reproducibility = reproducibility,
+    part_to_part = part_to_part,
+    total_var = total_var
+  ))
+}
 
-  if (is.null(p_val)) {
-    var_oper_part = 0
-  }else  if (p_val > .05) {
-    var_oper_part = 0
-  }
 
-  if(var_repeat<0){var_repeat=0}
-  if(var_oper_part<0){var_oper_part=0}
-  if(var_part<0){var_part=0}
-  if(var_oper<0){var_oper=0}
+#' ANOVA Table Calculation
+#'
+#' @param data An R dataframe or tibble.
+#' @param part A column in data specifying the unique ID of the part being measured
+#' @param operator A column in data specifying the operator for the recorded measurement
+#' @param meas A column in data where the measurement value is recorded.
+#'
+#' @return An anova table of meas ~ operator x part
+#' @export
+#'
+#' @examples
+#' data = data.frame(
+#' SN = c(
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02',
+#' 'SerialNumber_01',
+#' 'SerialNumber_01',
+#' 'SerialNumber_02',
+#' 'SerialNumber_02'),
+#'
+#' Operator = c(
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_01',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02',
+#' 'Operator_02'),
+#'
+#'Measure = c(
+#' 0.0172,
+#' 0.0177,
+#' 0.0155,
+#' 0.0159,
+#' 0.0174,
+#' 0.0181,
+#' 0.0152,
+#' 0.0176))
+#'
+#'anova_table(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
-  repeatability = var_repeat
-  reproducibility = var_oper + var_oper_part
-  total_grr = repeatability + reproducibility
-  part_to_part = var_part
-  total_var = total_grr + part_to_part
+anova_table <- function(data, part, operator, meas) {
+  # build formula from strings
+  form_text <- sprintf("%s ~ %s * %s", meas, operator, part)
+  form <- as.formula(form_text, env = parent.frame())
 
-  # Create a data frame for plotting
-  plot_data = data.frame(
-    Category = c("Repeatability", "Reproducibility", "Part-to-Part"),
-    Value = c(repeatability, reproducibility, part_to_part)
-  )
-
-  # Generate the bar plot
-  bar_plot = ggplot2::ggplot(plot_data, ggplot2::aes(x = Category, y = Value, fill = Category)) +
-    ggplot2::geom_bar(stat = "identity") +
-    ggplot2::theme_minimal() +
-    ggplot2::labs(title = "Variance Components", x = "Category", y = "Value") +
-    ggplot2::scale_fill_manual(values = c("Repeatability" = "blue", "Reproducibility" = "green", "Part-to-Part" = "red"))
-
-  # Print the plot
-  print(bar_plot)
-
-  return(list(repeatability = as.double(repeatability),
-              reproducibility = as.double(reproducibility),
-              total_grr = as.double(total_grr),
-              part_to_part = as.double(part_to_part),
-              total_var = as.double(total_var)))
+  # run ANOVA
+  anova_stats <- aov(form, data = data)
+  summary(anova_stats)
 }

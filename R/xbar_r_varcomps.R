@@ -1,309 +1,194 @@
 
 #' Average and Range Method Repeatability Calculation
 #'
-#' @param data An R dataframe or tibble.
-#' @param part The column in data specifying the unique ID of the part being measured
-#' @param operator A column in data specifying the operator for the recorded measurement
-#' @param meas A column in data where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part Column name (unquoted) specifying the unique ID of the part being measured. The column should be a
+#'   character or factor vector.
+#' @param operator Column name (unquoted) specifying the operator for the recorded measurement. The column should be a
+#'   character or factor vector.
+#' @param meas Column name (unquoted) where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
 #' @return A number. The measure of repeatability for the given data.
 #' @export
 #'
 #' @examples
-#' data = data.frame(
-#' SN = c(
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02'),
-#'
-#' Operator = c(
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02'),
-#'
-#'Measure = c(
-#' 0.0172,
-#' 0.0177,
-#' 0.0155,
-#' 0.0159,
-#' 0.0174,
-#' 0.0181,
-#' 0.0152,
-#' 0.0176))
-#'
-#'xbar_repeat(data, part = SN, operator = Operator, meas = Measure)
+#' data <- data.frame(
+#'   SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+#'   Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+#'   Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+#' )
+#' xbar_repeat(data, part = 'SN', operator = 'Operator', meas = 'Measure')
+xbar_repeat <- function(data, part, operator, meas) {
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
-xbar_repeat = function(data, part, operator, meas){
-  reps = data %>%
-    select({{part}}, {{operator}}) %>%
-    group_by({{part}}, {{operator}}) %>%
-    summarize(rep = n(), .groups = 'keep')
+  # number of replicates per part/operator
+  rep_counts <- aggregate(data[[meas]],
+                          by = list(data[[part]], data[[operator]]),
+                          FUN = length)
 
-  #Small correction here need equal number of reps across each operator/part combo
-  if (length(unique(reps$rep)) != 1) {
-    stop("Each part must have an equal number of replicates")
+  num_parts <- length(unique(data[[part]]))
+  num_opers <- length(unique(data[[operator]]))
+  expected_cells <- num_parts * num_opers
+
+  if (nrow(rep_counts) != expected_cells) {
+    stop("Balanced studies require every operator to measure every part.")
   }
 
-  reps = unique(reps$rep)
+  if (length(unique(rep_counts$x)) != 1) {
+    stop("Each part must have an equal number of replicates")
+  }
+  reps <- unique(rep_counts$x)
 
-  a = data %>%
-    select({{part}}) %>%
-    distinct() %>%
-    count()
+  g1 <- num_parts * num_opers
 
-  k = data %>%
-    select({{operator}}) %>%
-    distinct() %>%
-    count()
+  if (g1 <= 20 & reps <= 20){
+    d <- d_table[d_table$g == g1 & d_table$m == reps, "d2"]
+  } else{
+    d <- d2_minitab_df(m = reps, g = g1)
+  }
 
-  g1 = as.integer(a*k)
+  xbar_rep <- aggregate(data[[meas]],
+                        by = list(data[[part]], data[[operator]]),
+                        FUN = function(x) (max(x) - min(x)) / (num_parts * num_opers))
 
-  d = d_table %>%
-    filter(g == g1 & m == reps) %>%
-    select(d2) %>%
-    as.double()
-
-  xbar_rep = data %>%
-    select({{part}}, {{operator}}, {{meas}}) %>%
-    group_by({{part}}, {{operator}}) %>%
-    summarize(repeatbility = (max({{meas}})-min({{meas}}))/(a*k), .groups = 'keep')
-
-  repeatability = (sum(xbar_rep$repeatbility)/d)^2 #Squaring to return varComp not SD
-
+  repeatability <- (sum(xbar_rep$x) / d)^2
   return(repeatability)
-
 }
 
 #' Average and Range Method Reproducibility Calculation
 #'
-#' @param data An R dataframe or tibble.
-#' @param part The column in data specifying the unique ID of the part being measured
-#' @param operator A column in data specifying the operator for the recorded measurement
-#' @param meas A column in data where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part Column name (unquoted) specifying the unique ID of the part being measured. The column should be a
+#'   character or factor vector.
+#' @param operator Column name (unquoted) specifying the operator for the recorded measurement. The column should be a
+#'   character or factor vector.
+#' @param meas Column name (unquoted) where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
 #' @return A number. The measure of reproducibility for the given data.
 #' @export
 #'
 #' @examples
-#' data = data.frame(
-#' SN = c(
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02'),
-#'
-#' Operator = c(
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02'),
-#'
-#'Measure = c(
-#' 0.0172,
-#' 0.0177,
-#' 0.0155,
-#' 0.0159,
-#' 0.0174,
-#' 0.0181,
-#' 0.0152,
-#' 0.0176))
-#'
-#'xbar_reproduce(data, part = SN, operator = Operator, meas = Measure)
+#' data <- data.frame(
+#'   SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+#'   Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+#'   Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+#' )
+#' xbar_reproduce(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
-xbar_reproduce = function(data, part, operator, meas){
+xbar_reproduce <- function(data, part, operator, meas) {
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
-  reps = data %>%
-    select({{part}}, {{operator}}) %>%
-    group_by({{part}}, {{operator}}) %>%
-    summarize(rep = n(), .groups = 'keep')
+  rep_counts <- aggregate(data[[meas]],
+                          by = list(data[[part]], data[[operator]]),
+                          FUN = length)
 
-  if (length(unique(reps$rep)) != 1) {
+  num_parts <- length(unique(data[[part]]))
+  num_opers <- length(unique(data[[operator]]))
+  expected_cells <- num_parts * num_opers
+
+  if (nrow(rep_counts) != expected_cells) {
+    stop("Balanced studies require every operator to measure every part.")
+  }
+  if (length(unique(rep_counts$x)) != 1) {
     stop("Each part must have an equal number of replicates")
   }
+  r <- unique(rep_counts$x)
 
-  r = unique(reps$rep)
+  if (num_opers == 1) return(0)
 
-  a = data %>%
-    select({{part}}) %>%
-    distinct() %>%
-    count() %>%
-    as.integer()
+  if (num_opers <= 20){
+    d <- d_table[d_table$g == 1 & d_table$m == num_opers, "d2"]
+    } else{
+    d <- d2_minitab_df(m = num_opers, g = 1)
+    }
 
-  m1 = data %>%
-    select({{operator}}) %>%
-    distinct() %>%
-    count() %>%
-    as.integer()
+  xbar_i <- aggregate(data[[meas]],
+                      by = list(data[[operator]]),
+                      FUN = mean)
+  x_diff <- max(xbar_i$x) - min(xbar_i$x)
 
-  d = d_table %>%
-    filter(g == 1 & m == m1) %>%
-    select(d2) %>%
-    as.double()
+  repeatability <- xbar_repeat(data, part, operator, meas)
 
-  xbar_i = data %>%
-    select({{operator}}, {{meas}}) %>%
-    group_by({{operator}}) %>%
-    summarize(op_avg = mean({{meas}}), .groups = 'keep')
-
-  x_diff = max(xbar_i$op_avg) - min(xbar_i$op_avg)
-
-  repeatability = xbar_repeat(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
-
-  if(m1 == 1){
-    reproducibility = 0
-  }else  if((x_diff *1/d)^2 - (repeatability^2/(a*r)) > 0) {
-    reproducibility = (x_diff *1/d)^2 - (repeatability^2/(a*r))
-  }else{
-    reproducibility = 0
-  }
+  reproducibility <- max((x_diff / d)^2 - (repeatability / (num_parts * r)), 0)
   return(reproducibility)
-
 }
 
-#' Average and Range Method Part to Part Variance Calculation
+
+#' Average and Range Method Part-to-Part Variance Calculation
 #'
-#' @param data An R dataframe or tibble.
-#' @param part The column in data specifying the unique ID of the part being measured
-#' @param meas A column in data where the measurement value is recorded.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part Column name (unquoted) specifying the unique ID of the part being measured. The column should be a
+#'   character or factor vector.
+#' @param meas Column name (unquoted) where the measurement value is recorded. The column must be numeric and contain no
+#'   missing or infinite values.
 #'
-#' @return A number. The measure of part to part variation for the given data.
+#' @return A number. The measure of part-to-part variation for the given data.
 #' @export
 #'
 #' @examples
-#' data = data.frame(
-#' SN = c(
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02'),
-#'
-#' Operator = c(
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02'),
-#'
-#'Measure = c(
-#' 0.0172,
-#' 0.0177,
-#' 0.0155,
-#' 0.0159,
-#' 0.0174,
-#' 0.0181,
-#' 0.0152,
-#' 0.0176))
-#'
-#'part_to_part(data, part = SN, meas = Measure)
+#' data <- data.frame(
+#'   SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+#'   Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+#'   Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+#' )
+#' part_to_part(data, part = 'SN', meas = 'Measure')
+part_to_part <- function(data, part, meas) {
+  data <- validate_grr_inputs(data, part_col = part, operator_col = NULL, measure_col = meas)
 
-part_to_part = function(data, part, meas){
+  a <- length(unique(data[[part]]))
+  if (a < 2) {
+    return(0)
+  } else {
+    part_meas <- aggregate(data[[meas]],
+                           by = list(data[[part]]),
+                           FUN = mean)
 
-  a = data %>%
-    select({{part}}) %>%
-    distinct() %>%
-    count() %>%
-    as.integer()
+    if (a <= 20){
+      d <- d_table[d_table$g == 1 & d_table$m == a, "d2"]
+    } else{
+      d <- d2_minitab_df(m = a, g = 1)
+    }
 
-  d = d_table %>%
-    filter(g == 1 & m == a) %>%
-    select(d2) %>%
-    as.double()
+    r_p <- ((max(part_meas$x) - min(part_meas$x)) / d)^2
 
-  part_meas = data %>%
-    group_by({{part}}) %>%
-    summarize(avg_meas = mean({{meas}}), .groups = 'keep')
-
-    if(a == 1) {
-      r_p = 0
-    }else {
-  r_p = ((max(part_meas$avg_meas) - min(part_meas$avg_meas))/d)^2}
-
-  return(r_p)
+    return(r_p)
+  }
 
 }
+
 
 #' Average and Range Method Variance Component Summary
 #'
 #' @param data An R dataframe or tibble.
-#' @param part The column in data specifying the unique ID of the part being measured
-#' @param operator A column in data specifying the operator for the recorded measurement
-#' @param meas A column in data where the measurement value is recorded.
+#' @param part Column name (unquoted) specifying the unique ID of the part being measured.
+#' @param operator Column name (unquoted) specifying the operator for the recorded measurement.
+#' @param meas Column name (unquoted) where the measurement value is recorded.
 #'
 #' @return A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
 #' @export
 #'
 #' @examples
-#' data = data.frame(
-#' SN = c(
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02'),
-#'
-#' Operator = c(
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02'),
-#'
-#'Measure = c(
-#' 0.0172,
-#' 0.0177,
-#' 0.0155,
-#' 0.0159,
-#' 0.0174,
-#' 0.0181,
-#' 0.0152,
-#' 0.0176))
-#'
-#'xbar_varcomps(data, part = SN, operator = Operator, meas = Measure)
+#' data <- data.frame(
+#'   SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+#'   Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+#'   Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+#' )
+#' xbar_varcomps(data, part = 'SN', operator = 'Operator', meas = 'Measure')
+xbar_varcomps <- function(data, part, operator, meas) {
+  repeatability <- xbar_repeat(data, part, operator, meas)
+  reproducibility <- xbar_reproduce(data, part, operator, meas)
+  ptp <- part_to_part(data, part, meas)
 
-xbar_varcomps = function(data, part, operator, meas)  {
-
-  repeatability = xbar_repeat(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
-  reproducibility = xbar_reproduce(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
-  part_to_part = part_to_part(data = {{data}}, part = {{part}}, meas = {{meas}})
-  total_grr = repeatability + reproducibility
-  total_var = total_grr + part_to_part
+  total_grr <- repeatability + reproducibility
+  total_var <- total_grr + ptp
 
   return(list(
+    total_grr = total_grr,
     repeatability = repeatability,
     reproducibility = reproducibility,
-    total_grr = total_grr,
-    part_to_part = part_to_part,
+    part_to_part = ptp,
     total_var = total_var
   ))
 }

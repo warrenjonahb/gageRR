@@ -1,88 +1,90 @@
 #' Gage R&R Evaluation
 #'
-#' @param data An R dataframe or tible.
-#' @param part A column in the data specifying the unique ID of the part being measured
-#' @param operator A column in data specifying the operator for the recorded measurement
-#' @param meas A column in data where the measurement value is recorded.
-#' @param method A string specifying 'anova' or 'xbar_r'
-#' @param LSL A number to specify the lower specification limit.
-#' @param USL A number to specify the upper specification limit.
+#' @param data An R dataframe or tibble containing the required identifier and measurement columns.
+#' @param part A string giving the column name specifying the unique ID of the part being measured. The column
+#'   should be a character or factor.
+#' @param operator A string giving the column name specifying the operator for the recorded measurement. The column
+#'   should be a character or factor.
+#' @param meas A string giving the column name where the measurement value is recorded. The column must be numeric and
+#'   contain no missing or infinite values.
+#' @param method A string specifying "anova" or "xbar_r".
+#' @param LSL A number specifying the lower specification limit.
+#' @param USL A number specifying the upper specification limit.
 #'
-#' @return A list of two dataframes: VarianceComponents and GageEval
+#' @return A list containing:
+#' \itemize{
+#'   \item VarianceComponents: Data frame of variance components and percent contribution
+#'   \item GageEval: Data frame of study variation metrics
+#'   \item AnovaTable: ANOVA table (if method = "anova")
+#' }
 #' @export
 #'
 #' @examples
+#' data <- data.frame(
+#'   SN = rep(c("SerialNumber_01","SerialNumber_02"), each = 4),
+#'   Operator = rep(c("Operator_01","Operator_02"), each = 2, times = 2),
+#'   Measure = c(0.0172,0.0177,0.0155,0.0159,0.0174,0.0181,0.0152,0.0176)
+#' )
 #'
-#' data = data.frame(
-#' SN = c(
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02',
-#' 'SerialNumber_01',
-#' 'SerialNumber_01',
-#' 'SerialNumber_02',
-#' 'SerialNumber_02'),
-#'
-#' Operator = c(
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_01',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02',
-#' 'Operator_02'),
-#'
-#'Measure = c(
-#' 0.0172,
-#' 0.0177,
-#' 0.0155,
-#' 0.0159,
-#' 0.0174,
-#' 0.0181,
-#' 0.0152,
-#' 0.0176))
-#'
-#'grr_calc(data, part = SN, operator = Operator,
-#'meas = Measure, LSL = 0, USL = .040, method = 'xbar_r')
+#' grr_calc(data, part = "SN", operator = "Operator",
+#'          meas = "Measure", LSL = 0, USL = 0.040, method = "xbar_r")
+grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method = "anova") {
 
-grr_calc = function(data, part, operator, meas, LSL = NULL, USL = NULL, method = 'anova') {
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
-  if(method == 'anova') {
-    varComps = anova_var_calcs(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
-  } else if (method == 'xbar_r') {
-    varComps = xbar_varcomps(data = {{data}}, part = {{part}}, operator = {{operator}}, meas = {{meas}})
+  if (method == "anova") {
+    varComps <- anova_var_calcs(data, part, operator, meas)
+    anovaTable <- anova_table(data, part, operator, meas)
+  } else if (method == "xbar_r") {
+    varComps <- xbar_varcomps(data, part, operator, meas)
+    anovaTable <- NULL
   } else {
-    stop(print('Supplied method is not supported'))
+    stop("Supplied method is not supported. Use 'anova' or 'xbar_r'.")
   }
 
-    VarianceComponents = data.frame(matrix(unlist(varComps)))
-    row.names(VarianceComponents) <-names(varComps)
-    colnames(VarianceComponents) <- 'VarComp'
+  if (!is.null(LSL) && !is.null(USL) && USL <= LSL) {
+    stop("USL must be greater than LSL", call. = FALSE)
+  }
 
-    TotalVariation = VarianceComponents['total_var',]
-    VarianceComponents['PercentContribution'] = VarianceComponents['VarComp']/TotalVariation
+  if (is.null(LSL) && !is.null(USL) && USL <= 0) {
+    stop("USL must be greater than 0", call. = FALSE)
+  }
 
-    GageEval = data.frame(row.names = rownames(VarianceComponents))
-    GageEval['StdDev'] = sqrt(VarianceComponents$VarComp)
-    GageEval['StudyVar'] =  GageEval * 6
-    TotalStudyVar = GageEval['total_var', 'StudyVar']
-    GageEval['PercentStudyVar'] = GageEval['StudyVar'] / TotalStudyVar
+  # Build VarianceComponents data frame
+  VarianceComponents <- data.frame(matrix(unlist(varComps)))
+  row.names(VarianceComponents) <- names(varComps)
+  colnames(VarianceComponents) <- "VarComp"
 
-    if(!is.null(USL) | !is.null(LSL)){
+  TotalVariation <- VarianceComponents["total_var", ]
+  VarianceComponents["PercentContribution"] <- VarianceComponents$VarComp / TotalVariation
 
-      if(is.null(USL) & !is.null(LSL)){
-        stop('LSL provided with no USL.  Unable to interpret tolerance band')
-      } else if (!is.null(USL) & is.null(LSL)){
-        tolerance_band = USL
-      } else {
-        tolerance_band = USL - LSL
-      }
+  # Build GageEval data frame
+  GageEval <- data.frame(row.names = rownames(VarianceComponents))
+  GageEval["StdDev"] <- sqrt(VarianceComponents$VarComp)
+  GageEval["StudyVar"] <- GageEval$StdDev * 6
+  TotalStudyVar <- GageEval["total_var", "StudyVar"]
+  GageEval["PercentStudyVar"] <- GageEval$StudyVar / TotalStudyVar
 
-      GageEval['PercentTolerance'] = GageEval['StudyVar'] / tolerance_band
+  num_dist_cats <- sqrt(2) * (GageEval["part_to_part", "StdDev"] /
+                                GageEval["repeatability", "StdDev"])
 
+  num_dist_cats_int <- floor(num_dist_cats)
+
+  if (!is.null(USL) | !is.null(LSL)) {
+    if (is.null(USL) & !is.null(LSL)) {
+      stop("LSL provided with no USL. Unable to interpret tolerance band.")
+    } else if (!is.null(USL) & is.null(LSL)) {
+      tolerance_band <- USL
+    } else {
+      tolerance_band <- USL - LSL
     }
+    GageEval["PercentTolerance"] <- GageEval$StudyVar / tolerance_band
+  }
 
-return(list(VarianceComponents = VarianceComponents, GageEval = GageEval))
+  return(list(
+    VarianceComponents = VarianceComponents,
+    GageEval = GageEval,
+    NumDistinctCats = num_dist_cats_int,
+    AnovaTable = anovaTable
+  ))
 }
