@@ -1,6 +1,6 @@
 Package: gageRR
 Title: Calculate Gauge Repeatability and Reproducibility
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person("Jonah", "Warren", , "warren.jonahb@gmail.com", role = c("aut", "cre"),)
 Description: Description: Procedures for calculating variance components, study variation, percent study variation, and percent tolerance for gauge repeatability and reproducibility study.  Methods included are ANOVA and Average / Range methods.  ANOVA calculations support studies where operators may measure parts an unequal number of times, provided each combination has at least two replicates.
