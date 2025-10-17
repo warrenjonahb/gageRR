@@ -69,3 +69,29 @@ test_that("ANOVA/XBAR_R GRR Computation Check", {
     "USL must be greater than 0"
   )
   })
+
+test_that("grr_calc anova method handles unbalanced replicate counts", {
+  data <- data.frame(
+    SN = c(
+      rep("SerialNumber_01", 5),
+      rep("SerialNumber_02", 7)
+    ),
+    Operator = c(
+      rep("Operator_01", 3),
+      rep("Operator_02", 2),
+      rep("Operator_01", 4),
+      rep("Operator_02", 3)
+    ),
+    Measure = c(1.00, 1.05, 0.98, 1.90, 1.95, 2.05, 2.00, 2.10, 2.20, 2.15, 2.18, 2.12)
+  )
+
+  result <- grr_calc(data, part = "SN", operator = "Operator", meas = "Measure", method = "anova")
+  expect_s3_class(result, "list")
+  expect_equal(result$VarianceComponents["total_grr", "VarComp"],
+               result$VarianceComponents["repeatability", "VarComp"] +
+                 result$VarianceComponents["reproducibility", "VarComp"])
+  expect_equal(result$VarianceComponents["total_var", "VarComp"],
+               result$VarianceComponents["total_grr", "VarComp"] +
+                 result$VarianceComponents["part_to_part", "VarComp"],
+               tolerance = 1e-10)
+})

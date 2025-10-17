@@ -22,7 +22,10 @@ contain no missing or infinite values.}
 
 \item{USL}{A number specifying the upper specification limit.}
 
-\item{method}{A string specifying "anova" or "xbar_r".}
+\item{method}{A string specifying "anova" or "xbar_r".  The ANOVA method fits a mixed-effects
+model and permits unequal replicate counts per operator/part combination (each combination still
+requires at least two measurements).  The average/range method continues to require a balanced
+design with an equal number of replicates for every combination.}
 }
 \value{
 A list containing:

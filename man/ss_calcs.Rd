@@ -20,6 +20,8 @@ missing or infinite values.}
 }
 \value{
 A list of numeric values for the sum of squares error for operator, part, equipment, operator and part interaction, and total error.
+When the study is unbalanced (different replicate counts per operator/part combination) the \code{reps} element is returned
+as \code{NA}.
 }
 \description{
 ANOVA Sum of Squares Calculations

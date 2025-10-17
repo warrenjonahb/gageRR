@@ -17,6 +17,8 @@ anova_var_calcs(data, part, operator, meas)
 }
 \value{
 A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
+Variance components are estimated with a random-effects model fit via restricted maximum likelihood so that unequal
+replicate counts per operator/part combination are supported.
 }
 \description{
 ANOVA Variance Component Calculations

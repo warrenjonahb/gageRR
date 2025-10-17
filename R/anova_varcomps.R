@@ -161,53 +161,78 @@ ss_calcs <- function(data, part, operator, meas) {
 #'anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 
 anova_var_calcs <- function(data, part, operator, meas) {
-  ss_comp <- ss_calcs(data, part, operator, meas)
+  data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
-  reps <- ss_comp$reps
-  num_parts <- ss_comp$num_parts
-  num_opers <- ss_comp$num_opers
-  SS_oper_error <- ss_comp$SS_oper_error
-  SS_part_error <- ss_comp$SS_part_error
-  SS_equip_error <- ss_comp$SS_equip_error
-  SS_op_part_error <- ss_comp$SS_op_part_error
-  SS_no_interaction <- ss_comp$SS_no_interaction
-  SS_total_error <- ss_comp$SS_total_error
+  num_parts <- length(unique(data[[part]]))
+  num_opers <- length(unique(data[[operator]]))
 
-  MS_oper <- if (num_opers == 1) 0 else SS_oper_error / (num_opers - 1)
-  MS_part <- if (num_parts == 1) 0 else SS_part_error / (num_parts - 1)
-  MS_oper_part <- if (num_parts == 1 | num_opers == 1) 0 else SS_op_part_error / ((num_opers - 1) * (num_parts - 1))
-  MS_equip <- SS_equip_error / (num_parts * num_opers * (reps - 1))
+  # Ensure every operator-part combination has at least two replicates
+  reps <- aggregate(data[[meas]],
+                    by = list(data[[part]], data[[operator]]),
+                    FUN = length)
 
-  # Compute p-value for interaction
-  if (num_parts == 1 | num_opers == 1) {
-    p_val <- NULL
-  } else {
-    F_stat <- MS_oper_part / MS_equip
-    p_val <- stats::pf(F_stat,
-                       df1 = as.integer((num_opers - 1) * (num_parts - 1)),
-                       df2 = as.integer(num_parts * num_opers * (reps - 1)),
-                       lower.tail = FALSE)
+  expected_cells <- num_parts * num_opers
+
+  if (nrow(reps) != expected_cells) {
+    stop("Balanced studies require every operator to measure every part.")
   }
 
-  if (!is.null(p_val) && p_val < .05) {
-    MS_equip <- (SS_equip_error ) / (num_parts * num_opers * (reps - 1))
+  if (any(reps$x < 2)) {
+    stop("At least two replicates per part/operator are required.", call. = FALSE)
   }
 
-  if (is.null(p_val) || p_val > .05) {
-    MS_equip <- (SS_equip_error + SS_op_part_error) /
-      (((num_opers - 1) * (num_parts - 1)) + (num_parts * num_opers * (reps - 1)))
+  random_terms <- character()
+
+  if (num_parts > 1) {
+    random_terms <- c(random_terms, sprintf("(1|%s)", part))
   }
 
-  var_repeat <- max(MS_equip, 0)
-  var_oper_part <- max((MS_oper_part - MS_equip) / reps, 0)
-  var_part <- max((MS_part - MS_oper_part) / (reps * num_opers), 0)
-  var_oper <- max((MS_oper - MS_equip) / (reps * num_parts),0)
+  if (num_opers > 1) {
+    random_terms <- c(random_terms, sprintf("(1|%s)", operator))
+  }
+
+  if (num_parts > 1 && num_opers > 1) {
+    random_terms <- c(random_terms, sprintf("(1|%s:%s)", operator, part))
+  }
+
+  form_text <- paste(meas, "~ 1")
+
+  if (length(random_terms) > 0) {
+    form_text <- paste(form_text, "+", paste(random_terms, collapse = " + "))
+  }
+
+  form <- stats::as.formula(form_text, env = parent.frame())
+
+  lmm_fit <- tryCatch(
+    lme4::lmer(form, data = data, REML = TRUE),
+    error = function(e) {
+      stop("Failed to fit mixed-effects model for variance components: ", e$message, call. = FALSE)
+    }
+  )
+
+  vc <- lme4::VarCorr(lmm_fit)
+  vc_df <- as.data.frame(vc)
+
+  get_var <- function(group) {
+    idx <- which(vc_df$grp == group)
+    if (length(idx) == 0) {
+      return(0)
+    }
+    vc_df$vcov[idx[1]]
+  }
+
+  interaction_term <- sprintf("%s:%s", operator, part)
+
+  var_repeat <- attr(vc, "sc")^2
+  var_part <- if (num_parts > 1) get_var(part) else 0
+  var_oper <- if (num_opers > 1) get_var(operator) else 0
+  var_oper_part <- if (num_parts > 1 && num_opers > 1) get_var(interaction_term) else 0
 
 
-  repeatability <- var_repeat
-  reproducibility <- var_oper + var_oper_part
+  repeatability <- max(var_repeat, 0)
+  reproducibility <- max(var_oper, 0) + max(var_oper_part, 0)
   total_grr <- repeatability + reproducibility
-  part_to_part <- var_part
+  part_to_part <- max(var_part, 0)
   total_var <- total_grr + part_to_part
 
   return(list(
