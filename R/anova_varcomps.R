@@ -9,6 +9,8 @@
 #'   missing or infinite values.
 #'
 #' @return A list of numeric values for the sum of squares error for operator, part, equipment, operator and part interaction, and total error.
+#'   When the study is unbalanced (different replicate counts per operator/part combination) the \code{reps} element is returned
+#'   as \code{NA}.
 #' @export
 #'
 #' @examples
@@ -61,25 +63,21 @@ ss_calcs <- function(data, part, operator, meas) {
     stop("Balanced studies require every operator to measure every part.")
   }
 
-
-  if (length(unique(reps$x)) != 1) {
-    stop("Each part must have an equal number of replicates")
-  }
-  r <- unique(reps$x)
-
-  if (r < 2) {
+  if (any(reps$x < 2)) {
     stop("At least two replicates per part/operator are required.", call. = FALSE)
   }
 
   overall_mean <- mean(data[[meas]])
 
-  # Operator SS
+  # Operator SS (weighted by number of measurements per operator)
   op_means <- tapply(data[[meas]], data[[operator]], mean)
-  SS_oper_error <- sum((op_means - overall_mean)^2) * num_parts * r
+  op_counts <- table(data[[operator]])
+  SS_oper_error <- sum(op_counts * (op_means - overall_mean)^2)
 
-  # Part SS
+  # Part SS (weighted by number of measurements per part)
   part_means <- tapply(data[[meas]], data[[part]], mean)
-  SS_part_error <- sum((part_means - overall_mean)^2) * num_opers * r
+  part_counts <- table(data[[part]])
+  SS_part_error <- sum(part_counts * (part_means - overall_mean)^2)
 
   # Total SS
   SS_total_error <- sum((data[[meas]] - overall_mean)^2)
@@ -97,10 +95,13 @@ ss_calcs <- function(data, part, operator, meas) {
   SS_op_part_error <- SS_total_error - (SS_oper_error + SS_part_error + SS_equip_error)
 
   # No Operator*Part interaction
-  SS_no_interaction <- (SS_op_part_error + SS_equip_error)
+  SS_no_interaction <- SS_op_part_error + SS_equip_error
+
+  reps_value <- unique(reps$x)
+  reps_out <- if (length(reps_value) == 1) as.integer(reps_value) else NA_integer_
 
   return(list(
-    reps = as.integer(r),
+    reps = reps_out,
     num_parts = as.integer(num_parts),
     num_opers = as.integer(num_opers),
     SS_oper_error = as.double(SS_oper_error),
@@ -121,6 +122,8 @@ ss_calcs <- function(data, part, operator, meas) {
 #' @param meas A column in data where the measurement value is recorded.
 #'
 #' @return A list of numeric values for repeatability, reproducibility, total GRR, part-to-part, and total variance components.
+#'   Variance components are estimated with a random-effects model fit via restricted maximum likelihood so that unequal
+#'   replicate counts per operator/part combination are supported.
 #' @export
 #'
 #' @examples
