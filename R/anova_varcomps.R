@@ -165,9 +165,9 @@ anova_var_calcs <- function(data, part, operator, meas) {
 
   # Ensure the identifiers are factors so that mixed-model fits have
   # consistent behaviour across R versions
-  data[[part]] <- stats::as.factor(data[[part]])
+  data[[part]] <- as.factor(data[[part]])
   if (!is.null(operator)) {
-    data[[operator]] <- stats::as.factor(data[[operator]])
+    data[[operator]] <- as.factor(data[[operator]])
   }
 
   ss <- ss_calcs(data, part = part, operator = operator, meas = meas)
@@ -190,6 +190,7 @@ anova_var_calcs <- function(data, part, operator, meas) {
     ms_part <- if (df_part > 0) ss$SS_part_error / df_part else 0
     ms_oper <- if (df_oper > 0) ss$SS_oper_error / df_oper else 0
     ms_interaction <- if (df_interaction > 0) ss$SS_op_part_error / df_interaction else NA_real_
+    ms_interaction_raw <- ms_interaction
 
     pooled <- !is.na(ms_interaction) && df_interaction > 0 && ms_interaction <= ms_repeat
 
@@ -207,18 +208,20 @@ anova_var_calcs <- function(data, part, operator, meas) {
       0
     }
 
-    ms_for_components <- if (!is.na(ms_interaction) && df_interaction > 0 && !pooled) ms_interaction else ms_repeat
+    ms_for_operator <- if (!is.na(ms_interaction_raw) && df_interaction > 0 && !pooled) ms_interaction_raw else ms_repeat
 
     operator_var <- if (num_opers > 1) {
-      max((ms_oper - ms_for_components) / (num_parts * reps_per_cell), 0)
+      max((ms_oper - ms_for_operator) / (num_parts * reps_per_cell), 0)
     } else {
       0
     }
 
     reproducibility <- operator_var + interaction_var
 
+    ms_for_part <- if (!is.na(ms_interaction_raw) && df_interaction > 0) ms_interaction_raw else ms_repeat
+
     part_to_part <- if (num_parts > 1) {
-      max((ms_part - ms_for_components) / (num_opers * reps_per_cell), 0)
+      max((ms_part - ms_for_part) / (num_opers * reps_per_cell), 0)
     } else {
       0
     }
