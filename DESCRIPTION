@@ -14,8 +14,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    readxl,
-    shiny
+    readxl
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: 

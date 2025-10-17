@@ -30,11 +30,6 @@ You can install the development version of gageRR from [GitHub](https://github.c
 # install.packages("devtools")
 devtools::install_github("warrenjonahb/gageRR")
 ```
-After installation you can run the Shiny App with:
-
-```r
-shiny::runApp(system.file("app", package = "gageRR"))
-```
 
 ## Example
 

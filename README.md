@@ -30,12 +30,6 @@ You can install the development version of gageRR from
 devtools::install_github("warrenjonahb/gageRR")
 ```
 
-After installation you can run the Shiny App with:
-
-``` r
-shiny::runApp(system.file("app", package = "gageRR"))
-```
-
 ## Example
 
 This is a basic example which takes the appropriately formatted data
@@ -104,23 +98,26 @@ ss_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 #> $SS_op_part_error
 #> [1] 8e-08
 #> 
+#> $SS_no_interaction
+#> [1] 3.41e-06
+#> 
 #> $SS_total_error
 #> [1] 8.715e-06
 anova_var_calcs(data, part = 'SN', operator = 'Operator', meas = 'Measure')
 #> $total_grr
-#> [1] 9.375e-07
+#> [1] 6.82e-07
 #> 
 #> $repeatability
-#> [1] 8.325e-07
+#> [1] 6.82e-07
 #> 
 #> $reproducibility
-#> [1] 1.05e-07
+#> [1] 0
 #> 
 #> $part_to_part
 #> [1] 1.18125e-06
 #> 
 #> $total_var
-#> [1] 2.11875e-06
+#> [1] 1.86325e-06
 ```
 
 With these variance components we can then calculate the final gage
@@ -130,19 +127,22 @@ evaluation statistics:
 grr_calc(data, part = 'SN', operator = 'Operator', meas = 'Measure', LSL = 0, USL = .040, method = 'anova')
 #> $VarianceComponents
 #>                     VarComp PercentContribution
-#> total_grr       9.37500e-07          0.44247788
-#> repeatability   8.32500e-07          0.39292035
-#> reproducibility 1.05000e-07          0.04955752
-#> part_to_part    1.18125e-06          0.55752212
-#> total_var       2.11875e-06          1.00000000
+#> total_grr       6.82000e-07           0.3660271
+#> repeatability   6.82000e-07           0.3660271
+#> reproducibility 0.00000e+00           0.0000000
+#> part_to_part    1.18125e-06           0.6339729
+#> total_var       1.86325e-06           1.0000000
 #> 
 #> $GageEval
 #>                       StdDev    StudyVar PercentStudyVar PercentTolerance
-#> total_grr       0.0009682458 0.005809475       0.6651901       0.14523688
-#> repeatability   0.0009124144 0.005474486       0.6268336       0.13686216
-#> reproducibility 0.0003240370 0.001944222       0.2226152       0.04860556
-#> part_to_part    0.0010868533 0.006521120       0.7466740       0.16302799
-#> total_var       0.0014555927 0.008733556       1.0000000       0.21833890
+#> total_grr       0.0008258329 0.004954997       0.6050017        0.1238749
+#> repeatability   0.0008258329 0.004954997       0.6050017        0.1238749
+#> reproducibility 0.0000000000 0.000000000       0.0000000        0.0000000
+#> part_to_part    0.0010868533 0.006521120       0.7962241        0.1630280
+#> total_var       0.0013650092 0.008190055       1.0000000        0.2047514
+#> 
+#> $NumDistinctCats
+#> [1] 1
 #> 
 #> $AnovaTable
 #>             Df    Sum Sq   Mean Sq F value Pr(>F)  
