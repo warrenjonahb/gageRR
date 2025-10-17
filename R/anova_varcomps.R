@@ -163,22 +163,76 @@ ss_calcs <- function(data, part, operator, meas) {
 anova_var_calcs <- function(data, part, operator, meas) {
   data <- validate_grr_inputs(data, part_col = part, operator_col = operator, measure_col = meas)
 
-  num_parts <- length(unique(data[[part]]))
-  num_opers <- length(unique(data[[operator]]))
-
-  # Ensure every operator-part combination has at least two replicates
-  reps <- aggregate(data[[meas]],
-                    by = list(data[[part]], data[[operator]]),
-                    FUN = length)
-
-  expected_cells <- num_parts * num_opers
-
-  if (nrow(reps) != expected_cells) {
-    stop("Balanced studies require every operator to measure every part.")
+  # Ensure the identifiers are factors so that mixed-model fits have
+  # consistent behaviour across R versions
+  data[[part]] <- stats::as.factor(data[[part]])
+  if (!is.null(operator)) {
+    data[[operator]] <- stats::as.factor(data[[operator]])
   }
 
-  if (any(reps$x < 2)) {
-    stop("At least two replicates per part/operator are required.", call. = FALSE)
+  ss <- ss_calcs(data, part = part, operator = operator, meas = meas)
+
+  reps <- ss$reps
+  num_parts <- ss$num_parts
+  num_opers <- ss$num_opers
+
+  balanced_design <- !is.na(reps)
+
+  if (balanced_design) {
+    reps_per_cell <- reps
+
+    df_repeat <- num_parts * num_opers * (reps_per_cell - 1)
+    df_oper <- max(num_opers - 1, 0)
+    df_part <- max(num_parts - 1, 0)
+    df_interaction <- max((num_parts - 1) * (num_opers - 1), 0)
+
+    ms_repeat <- if (df_repeat > 0) ss$SS_equip_error / df_repeat else 0
+    ms_part <- if (df_part > 0) ss$SS_part_error / df_part else 0
+    ms_oper <- if (df_oper > 0) ss$SS_oper_error / df_oper else 0
+    ms_interaction <- if (df_interaction > 0) ss$SS_op_part_error / df_interaction else NA_real_
+
+    pooled <- !is.na(ms_interaction) && df_interaction > 0 && ms_interaction <= ms_repeat
+
+    if (pooled) {
+      df_no_interaction <- df_repeat + df_interaction
+      ms_repeat <- if (df_no_interaction > 0) ss$SS_no_interaction / df_no_interaction else ms_repeat
+      ms_interaction <- ms_repeat
+    }
+
+    repeatability <- max(ms_repeat, 0)
+
+    interaction_var <- if (!is.na(ms_interaction) && df_interaction > 0 && !pooled) {
+      max((ms_interaction - ms_repeat) / reps_per_cell, 0)
+    } else {
+      0
+    }
+
+    ms_for_components <- if (!is.na(ms_interaction) && df_interaction > 0 && !pooled) ms_interaction else ms_repeat
+
+    operator_var <- if (num_opers > 1) {
+      max((ms_oper - ms_for_components) / (num_parts * reps_per_cell), 0)
+    } else {
+      0
+    }
+
+    reproducibility <- operator_var + interaction_var
+
+    part_to_part <- if (num_parts > 1) {
+      max((ms_part - ms_for_components) / (num_opers * reps_per_cell), 0)
+    } else {
+      0
+    }
+
+    total_grr <- repeatability + reproducibility
+    total_var <- total_grr + part_to_part
+
+    return(list(
+      total_grr = total_grr,
+      repeatability = repeatability,
+      reproducibility = reproducibility,
+      part_to_part = part_to_part,
+      total_var = total_var
+    ))
   }
 
   random_terms <- character()
@@ -228,20 +282,19 @@ anova_var_calcs <- function(data, part, operator, meas) {
   var_oper <- if (num_opers > 1) get_var(operator) else 0
   var_oper_part <- if (num_parts > 1 && num_opers > 1) get_var(interaction_term) else 0
 
-
   repeatability <- max(var_repeat, 0)
   reproducibility <- max(var_oper, 0) + max(var_oper_part, 0)
   total_grr <- repeatability + reproducibility
   part_to_part <- max(var_part, 0)
   total_var <- total_grr + part_to_part
 
-  return(list(
+  list(
     total_grr = total_grr,
     repeatability = repeatability,
     reproducibility = reproducibility,
     part_to_part = part_to_part,
     total_var = total_var
-  ))
+  )
 }
 
 

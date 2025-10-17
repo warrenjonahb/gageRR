@@ -84,10 +84,14 @@ grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method 
     GageEval["PercentTolerance"] <- GageEval$StudyVar / tolerance_band
   }
 
-  return(list(
+  result <- list(
     VarianceComponents = VarianceComponents,
     GageEval = GageEval,
     NumDistinctCats = num_dist_cats_int,
     AnovaTable = anovaTable
-  ))
+  )
+
+  class(result) <- c("grr_result", "list")
+
+  result
 }
