@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("anova varcomp test", {
 
   data = data.frame(
     SN = c(

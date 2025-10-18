@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("xbar_r varcomp test", {
   data = data.frame(
     SN = c(
       'SerialNumber_01',

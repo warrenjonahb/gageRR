@@ -1,4 +1,4 @@
-test_that("ANOVA/XBAR_R GRR Computation Check", {
+test_that("anova/xbar_r GRR Computation Check", {
   data = data.frame(
     SN = c(
       'SerialNumber_01',
