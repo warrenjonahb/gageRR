@@ -229,13 +229,17 @@ anova_var_calcs <- function(data, part, operator, meas) {
     total_grr <- repeatability + reproducibility
     total_var <- total_grr + part_to_part
 
-    return(list(
+    result <- list(
       total_grr = total_grr,
       repeatability = repeatability,
       reproducibility = reproducibility,
       part_to_part = part_to_part,
       total_var = total_var
-    ))
+    )
+
+    attr(result, "balanced_design") <- TRUE
+
+    return(result)
   }
 
   random_terms <- character()
@@ -291,13 +295,17 @@ anova_var_calcs <- function(data, part, operator, meas) {
   part_to_part <- max(var_part, 0)
   total_var <- total_grr + part_to_part
 
-  list(
+  result <- list(
     total_grr = total_grr,
     repeatability = repeatability,
     reproducibility = reproducibility,
     part_to_part = part_to_part,
     total_var = total_var
   )
+
+  attr(result, "balanced_design") <- FALSE
+
+  result
 }
 
 

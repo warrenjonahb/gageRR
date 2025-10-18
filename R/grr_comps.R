@@ -37,6 +37,9 @@ grr_calc <- function(data, part, operator, meas, LSL = NULL, USL = NULL, method 
 
   if (method == "anova") {
     varComps <- anova_var_calcs(data, part, operator, meas)
+    if (!isTRUE(attr(varComps, "balanced_design"))) {
+      message("Note: This study has unequal replicate counts, so a pooled mixed-effects estimator is used for the variance components.")
+    }
     anovaTable <- anova_table(data, part, operator, meas)
   } else if (method == "xbar_r") {
     varComps <- xbar_varcomps(data, part, operator, meas)

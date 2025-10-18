@@ -36,7 +36,7 @@ xbar_repeat <- function(data, part, operator, meas) {
   }
 
   if (length(unique(rep_counts$x)) != 1) {
-    stop("Each part must have an equal number of replicates")
+    stop("Each part must have an equal number of replicates. An unbalanced study can only be analyzed with method = 'anova'")
   }
   reps <- unique(rep_counts$x)
 
