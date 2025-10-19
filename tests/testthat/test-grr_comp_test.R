@@ -85,8 +85,8 @@ test_that("grr_calc anova method handles unbalanced replicate counts", {
     Measure = c(1.00, 1.05, 0.98, 1.90, 1.95, 2.05, 2.00, 2.10, 2.20, 2.15, 2.18, 2.12)
   )
 
-  result <- expect_message(
-    grr_calc(data, part = "SN", operator = "Operator", meas = "Measure", method = "anova"),
+  expect_message(
+    result <- grr_calc(data, part = "SN", operator = "Operator", meas = "Measure", method = "anova"),
     "unequal replicate counts"
   )
 
